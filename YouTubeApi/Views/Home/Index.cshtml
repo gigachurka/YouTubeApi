@@ -1,0 +1,12 @@
+﻿@model List<YouTubeApi.Models.VideoEntity>
+
+<h2>Сохранённые видео</h2>
+
+@foreach (var video in Model)
+{
+    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+        <img src="@video.Thumbnail" width="200" />
+        <h3><a href="@video.Link" target="_blank">@video.Title</a></h3>
+        <p>Дата публикации: @video.PublishedAt?.ToString("g")</p>
+    </div>
+}

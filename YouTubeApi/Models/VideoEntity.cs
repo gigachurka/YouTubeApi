@@ -4,9 +4,12 @@ namespace YouTubeApi.Models
 {
     public class VideoEntity
     {
+
         [Key]
         public int Id { get; set; }
 
+        [Required]
+        public string ChannelId { get; set; } = string.Empty;
         [Required]
         public string Title { get; set; } = string.Empty;
 

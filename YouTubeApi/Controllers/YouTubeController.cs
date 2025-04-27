@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using YouTubeApi.Data;
 using YouTubeApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Azure.Core;
 namespace YouTubeApi.Controllers
 {
     /// <summary>
     /// UC2tsySbe9TNrI-xh2lximHA //A4
     /// UCHgn5EP5TuCMH7TTOVsMfjQ //my kuzhelinovk@gmail.com
+    /// UCfuzrGBCVquxNQAAJ1ib7qg //sigma
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
@@ -22,19 +24,29 @@ namespace YouTubeApi.Controllers
         }
 
         private readonly ApplicationDbContext _context;
-        [HttpGet]
-        public async Task<IActionResult> GetChannelsVideos(string? pageToken = null, int maxResults = 50)
+        //[HttpPost("load")]
+        //public async Task<IActionResult> GetChannelsVideos([FromQuery] string channelId, [FromQuery] string? pageToken = null, [FromQuery] int maxResults = 50)
+        [HttpPost("load")]
+        public async Task<IActionResult> GetChannelsVideos([FromForm] string channelId, [FromForm] string? pageToken = null, [FromForm] int maxResults = 50)
+
         {
             var youtubeService = new YouTubeService(new BaseClientService.Initializer { 
             ApiKey= "AIzaSyCAc0C3r_XNElzvji9CnFhpzcGm7rhMCkg",
             ApplicationName="MyYouTubeApp"
             });
             var searchReaquest = youtubeService.Search.List("snippet");
-            searchReaquest.ChannelId = "UC2tsySbe9TNrI-xh2lximHA";
+            searchReaquest.ChannelId = channelId;
+            Console.WriteLine($"channelId: {channelId}");
+
             searchReaquest.Order = SearchResource.ListRequest.OrderEnum.Date;
-            searchReaquest.MaxResults = maxResults; 
+            searchReaquest.MaxResults = maxResults;
+            if (!string.IsNullOrEmpty(pageToken))
+            {
+                searchReaquest.PageToken = pageToken;
+            }
+
+            searchReaquest.Type = "video";
             var searchResponse = await searchReaquest.ExecuteAsync();
-            searchReaquest.PageToken = pageToken;
 
             var videoList = searchResponse.Items.Select(item => new VideoDetails {
                 Title = item.Snippet.Title,
@@ -57,7 +69,8 @@ namespace YouTubeApi.Controllers
                     Title = item.Snippet.Title,
                     Link = $"https://www.youtube.com/watch?v={item.Id.VideoId}",
                     Thumbnail = item.Snippet.Thumbnails.Medium.Url,
-                    PublishedAt = item.Snippet.PublishedAtDateTimeOffset
+                    PublishedAt = item.Snippet.PublishedAtDateTimeOffset,
+                    ChannelId = channelId,
                 };
 
                 if (!_context.Videos.Any(v => v.Link == video.Link))
@@ -70,6 +83,7 @@ namespace YouTubeApi.Controllers
 
             return Ok(response);
         }
+
         [HttpGet("saved")]
         public async Task<IActionResult> GetSavedVideos()
         {

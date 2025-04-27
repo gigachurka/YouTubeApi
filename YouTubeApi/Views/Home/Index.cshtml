@@ -1,12 +1,119 @@
 ﻿@model List<YouTubeApi.Models.VideoEntity>
 
-<h2>Сохранённые видео</h2>
+<h2 style="text-align: center; color: #333;">Сохранённые видео</h2>
 
-@foreach (var video in Model)
+<form method="post" asp-action="LoadChannelVideos" style="text-align: center; margin-bottom: 30px;">
+    <input type="text" name="channelId" placeholder="Введите Channel ID" required />
+    <button type="submit">Загрузить видео</button>
+</form>
+
+@if (Model != null && Model.Any())
 {
-    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-        <img src="@video.Thumbnail" width="200" />
-        <h3><a href="@video.Link" target="_blank">@video.Title</a></h3>
-        <p>Дата публикации: @video.PublishedAt?.ToString("g")</p>
+    <div class="video-container">
+        @foreach (var video in Model)
+        {
+            <div class="video-card">
+                <img src="@video.Thumbnail" width="200" />
+                <h3><a href="@video.Link" target="_blank">@video.Title</a></h3>
+                <p>Дата публикации: @video.PublishedAt?.ToString("g")</p>
+            </div>
+        }
     </div>
 }
+else
+{
+    <p style="text-align: center;">Видео пока не загружены.</p>
+}
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="error-message">
+        Ошибка: @ViewBag.ErrorMessage
+    </div>
+}
+
+<style>
+    body {
+        background-color: #e1e5f2; /* Более светлый фон для контраста */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+    }
+
+    h2 {
+        margin: 20px 0;
+    }
+
+    form {
+        margin-bottom: 30px;
+    }
+
+        form input[type="text"],
+        form button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin: 5px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 5px 5px 15px rgba(150, 150, 150, 0.5), -5px -5px 15px #ffffff;
+        }
+
+        form input[type="text"] {
+            width: 250px;
+        }
+
+        form button {
+            background-color: #4a90e2; /* Яркий цвет для кнопки */
+            color: white;
+            cursor: pointer;
+        }
+
+            form button:hover {
+                background-color: #357ab7; /* Потемнение при наведении */
+                transform: translateY(-2px);
+                box-shadow: 3px 3px 10px rgba(150, 150, 150, 0.5), -3px -3px 10px #ffffff;
+            }
+
+    .video-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .video-card {
+        background: #ffffff; /* Белый фон для карточки */
+        border-radius: 20px;
+        box-shadow: 7px 7px 20px rgba(150, 150, 150, 0.4), -7px -7px 20px #ffffff;
+        margin: 10px;
+        padding: 20px;
+        text-align: center;
+        width: 300px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 10px 10px 15px rgba(150, 150, 150, 0.4), -10px -10px 15px #ffffff;
+        }
+
+        .video-card img {
+            border-radius: 10px;
+        }
+
+        .video-card h3 a {
+            text-decoration: none;
+            color: #4a90e2; /* Цвет для заголовка */
+        }
+
+            .video-card h3 a:hover {
+                text-decoration: underline; /* Подчёркивание при наведении */
+            }
+
+    .error-message {
+        color: red;
+        text-align: center;
+        margin-top: 20px;
+    }
+</style>

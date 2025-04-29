@@ -1,11 +1,33 @@
 ﻿@model List<YouTubeApi.Models.VideoEntity>
+<header style="
+    background: #ffffff;
+    padding: 40px 20px;
+    text-align: center;
+    margin-bottom: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-in-out;
+    color: #111;
+">
+    <h1 style="margin: 0; font-size: 3em; font-weight: bold;">YouTube Видео Менеджер</h1>
+    <p style="margin-top: 10px; font-size: 1.2em; color: #555;">Работа с YouTube API: сохранение и загрузка видео</p>
+</header>
 
-<h2 style="text-align: center; color: #333;">Сохранённые видео</h2>
+<h2 style="text-align: center; color: #111;">Сохранённые видео</h2>
 
-<form method="post" asp-action="LoadChannelVideos" style="text-align: center; margin-bottom: 30px;">
+<form method="get" asp-action="Index" style="text-align: center; margin-bottom: 20px;">
+    <input type="text" name="channelId" placeholder="Введите Channel ID" value="@Context.Request.Query["channelId"]" />
+    <button type="submit">Показать видео</button>
+</form>
+
+<form method="post" action="/api/youtube/load" style="text-align: center; margin-bottom: 30px;">
     <input type="text" name="channelId" placeholder="Введите Channel ID" required />
     <button type="submit">Загрузить видео</button>
 </form>
+
+<div style="text-align: center; margin-top: 20px;">
+    <a href="/" class="btn-show-all">Показать все видео</a>
+</div>
 
 @if (Model != null && Model.Any())
 {
@@ -13,7 +35,7 @@
         @foreach (var video in Model)
         {
             <div class="video-card">
-                <img src="@video.Thumbnail" width="200" />
+                <img src="@video.Thumbnail" width="100%" />
                 <h3><a href="@video.Link" target="_blank">@video.Title</a></h3>
                 <p>Дата публикации: @video.PublishedAt?.ToString("g")</p>
             </div>
@@ -22,98 +44,123 @@
 }
 else
 {
-    <p style="text-align: center;">Видео пока не загружены.</p>
-}
-
-@if (ViewBag.ErrorMessage != null)
-{
-    <div class="error-message">
-        Ошибка: @ViewBag.ErrorMessage
-    </div>
+    <p style="text-align: center; margin-top: 40px; color: #666;">Видео пока не найдены.</p>
 }
 
 <style>
     body {
-        background-color: #e1e5f2; /* Более светлый фон для контраста */
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f9f9f9;
+        font-family: 'Inter', sans-serif;
         margin: 0;
         padding: 20px;
-        color: #333;
+        color: #222;
     }
 
     h2 {
         margin: 20px 0;
+        font-size: 2rem;
+        font-weight: 600;
     }
 
     form {
         margin-bottom: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
     }
 
-        form input[type="text"],
-        form button {
-            border: none;
-            border-radius: 12px;
-            padding: 12px 15px;
-            margin: 5px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 5px 5px 15px rgba(150, 150, 150, 0.5), -5px -5px 15px #ffffff;
-        }
-
         form input[type="text"] {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 16px;
+            background-color: #fff;
             width: 250px;
         }
 
         form button {
-            background-color: #4a90e2; /* Яркий цвет для кнопки */
-            color: white;
             cursor: pointer;
+            background-color: #FF0000;
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
             form button:hover {
-                background-color: #357ab7; /* Потемнение при наведении */
+                background-color: #cc0000;
                 transform: translateY(-2px);
-                box-shadow: 3px 3px 10px rgba(150, 150, 150, 0.5), -3px -3px 10px #ffffff;
             }
+
+            form button:active {
+                background-color: #990000;
+                transform: translateY(1px);
+            }
+
+    .btn-show-all {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        background-color: #FF0000;
+        color: #fff;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background-color 0.3s, transform 0.3s;
+        margin-bottom: 20px;
+    }
+
+        .btn-show-all:hover {
+            background-color: #cc0000;
+            transform: translateY(-2px);
+        }
+
+        .btn-show-all:active {
+            background-color: #990000;
+            transform: translateY(1px);
+        }
 
     .video-container {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
     }
 
     .video-card {
-        background: #ffffff; /* Белый фон для карточки */
-        border-radius: 20px;
-        box-shadow: 7px 7px 20px rgba(150, 150, 150, 0.4), -7px -7px 20px #ffffff;
-        margin: 10px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
         padding: 20px;
         text-align: center;
-        width: 300px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s, box-shadow 0.3s;
     }
 
         .video-card:hover {
             transform: translateY(-5px);
-            box-shadow: 10px 10px 15px rgba(150, 150, 150, 0.4), -10px -10px 15px #ffffff;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
         .video-card img {
-            border-radius: 10px;
+            width: 100%;
+            border-radius: 8px;
         }
 
         .video-card h3 a {
             text-decoration: none;
-            color: #4a90e2; /* Цвет для заголовка */
+            color: #111;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: color 0.3s;
         }
 
             .video-card h3 a:hover {
-                text-decoration: underline; /* Подчёркивание при наведении */
+                color: #cc0000;
             }
-
-    .error-message {
-        color: red;
-        text-align: center;
-        margin-top: 20px;
-    }
 </style>

@@ -2,6 +2,9 @@
 
 namespace YouTubeApi.Models
 {
+    /// <summary>
+    /// тут нужно будет добавить больше инф о видео
+    /// </summary>
     public class VideoEntity
     {
 
@@ -19,6 +22,10 @@ namespace YouTubeApi.Models
         public string? Thumbnail { get; set; }
 
         public DateTimeOffset? PublishedAt { get; set; }
+
+        //public long ViewCount { get; set; }
+        //public long LikeCount { get; set; }
+        //public long CommentCount { get; set; }
     }
 }
 

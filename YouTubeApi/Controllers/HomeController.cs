@@ -3,50 +3,31 @@ using Microsoft.EntityFrameworkCore;
 using YouTubeApi.Data;
 using YouTubeApi.Models;
 
-public class HomeController : Controller
+namespace YouTubeApi.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public HomeController(ApplicationDbContext context)
+    public class HomeController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    public async Task<IActionResult> Index()
-    {
-        var videos = await _context.Videos
-            .OrderByDescending(v => v.PublishedAt)
-            .ToListAsync();
-        return View(videos);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> LoadChannelVideos(string channelId)
-    {
-        try
+        public HomeController(ApplicationDbContext context)
         {
-            var client = new HttpClient();
-            var formData = new MultipartFormDataContent(); //FormData, не json
-            formData.Add(new StringContent(channelId), "channelId");
+            _context = context;
+        }
 
-            var response = await client.PostAsync("https://localhost:7259/api/youtube/load", formData);
+        public async Task<IActionResult> Index(string? channelId)
+        {
+            IQueryable<VideoEntity> query = _context.Videos;
 
-            if (!response.IsSuccessStatusCode)
+            if (!string.IsNullOrEmpty(channelId))
             {
-                throw new Exception($"Ошибка при запросе: {response.StatusCode}");
+                query = query.Where(v => v.ChannelId == channelId);
             }
 
-            var videos = await _context.Videos
-                        .Where(v => v.ChannelId == channelId) // Фильтрую по Id YouTube канала
-                        .OrderByDescending(v => v.PublishedAt)
-                        .ToListAsync();
+            var videos = await query
+                .OrderByDescending(v => v.PublishedAt)
+                .ToListAsync();
 
-            return View("Index", videos);
-        }
-        catch (Exception ex)
-        {
-            ViewBag.ErrorMessage = ex.Message;
-            return View("Index", new List<VideoEntity>());
+            return View(videos);
         }
     }
 }

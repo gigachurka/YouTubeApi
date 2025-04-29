@@ -7,5 +7,6 @@
 
         public string? Thumbnail { get; set; }
         public DateTimeOffset? PublishedAt  { get; set; }
+        public string ChannelId { get; internal set; }
     }
 }

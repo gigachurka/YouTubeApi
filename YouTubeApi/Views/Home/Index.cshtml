@@ -1,32 +1,60 @@
 ﻿@model List<YouTubeApi.Models.VideoEntity>
 <header style="
-    background: #ffffff;
-    padding: 40px 20px;
-    text-align: center;
-    margin-bottom: 40px;
+    background: #fff;
+    padding: 40px 50px;
+    margin: 20px auto 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 1s ease-in-out;
-    color: #111;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    max-width: 1000px;
+    animation: fadeIn 0.8s ease-in-out;
 ">
-    <h1 style="margin: 0; font-size: 3em; font-weight: bold;">YouTube Видео Менеджер</h1>
-    <p style="margin-top: 10px; font-size: 1.2em; color: #555;">Работа с YouTube API: сохранение и загрузка видео</p>
+    <h1 style="
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #e53935;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    ">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" style="height: 28px; vertical-align: middle;">
+        Видео Менеджер
+    </h1>
+    <p style="
+        margin-top: 8px;
+        font-size: 1rem;
+        color: #555;
+        font-weight: 400;
+    ">
+        Получение информации о видео через YouTube API
+    </p>
 </header>
 
-<h2 style="text-align: center; color: #111;">Сохранённые видео</h2>
 
-<form method="get" asp-action="Index" style="text-align: center; margin-bottom: 20px;">
-    <input type="text" name="channelId" placeholder="Введите Channel ID" value="@Context.Request.Query["channelId"]" />
-    <button type="submit">Показать видео</button>
-</form>
+<h2 style="
+    text-align: center;
+    color: #222;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+">
+    Получение видео с YouTube канала по Channel ID
+</h2>
 
-<form method="post" action="/api/youtube/load" style="text-align: center; margin-bottom: 30px;">
-    <input type="text" name="channelId" placeholder="Введите Channel ID" required />
-    <button type="submit">Загрузить видео</button>
-</form>
+<div style="max-width: 600px; margin: 0 auto 30px; display: flex; flex-direction: column; gap: 16px;">
+   
+    <form method="post" action="/api/youtube/load" style="display: flex; gap: 10px;">
+        <input type="text" name="channelId" placeholder="Введите Channel ID для загрузки информации о видео" required class="input-field" />
+        <button type="submit" class="yt-button">Загрузить</button>
+    </form>
 
-<div style="text-align: center; margin-top: 20px;">
-    <a href="/" class="btn-show-all">Показать все видео</a>
+    <form method="get" asp-action="Index" style="display: flex; gap: 10px;">
+        <input type="text" name="channelId" placeholder="Введите Channel ID" value="@Context.Request.Query["channelId"]" class="input-field" />
+        <button type="submit" class="yt-button">Показать</button>
+    </form>
+    <a href="/" class="btn-show-all" style="align-self: flex-start;">Показать все видео</a>
 </div>
 
 @if (Model != null && Model.Any())
@@ -48,20 +76,71 @@ else
 }
 <footer style="
     margin-top: 60px;
-    padding: 20px;
-    background-color: #f7f7f7;
+    padding: 20px 20px;
+    background: #ffffff;
     border-top: 1px solid #ddd;
     text-align: center;
     font-size: 0.95em;
-    color: #555;
+    color: #333;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: 12px 12px 0 0;
+    animation: fadeInUp 0.8s ease-in-out;
 ">
-    <p>&copy; 2025 YouTube Видео Менеджер. Все права защищены.</p>
-    <p>Ваши данные защищены и не передаются третьим лицам.</p>
-    <div style="margin-top: 10px;">
-        <a href="https://instagram.com" target="_blank" style="margin: 0 10px; color: #e1306c;">Instagram</a>
-        <a href="https://discord.com" target="_blank" style="margin: 0 10px; color: #5865F2;">Discord</a>
-        <a href="https://x.com" target="_blank" style="margin: 0 10px; color: #1DA1F2;">X (Twitter)</a>
+    <div style="margin-top: 15px; display: flex; justify-content: center; gap: 15px;">
+        <a href="https://instagram.com" target="_blank" style="
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background-color: #e1306c;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 14px;
+            transition: transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            IG
+        </a>
+
+        <a href="https://discord.com" target="_blank" style="
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background-color: #5865F2;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 14px;
+            transition: transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            DC
+        </a>
+
+        <a href="https://x.com" target="_blank" style="
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background-color: #1DA1F2;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 14px;
+            transition: transform 0.2s;
+        " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            X
+        </a>
     </div>
+
+    <p style="margin: 10px 0 0;">&copy; 2025 <strong>YouTube Видео Менеджер</strong> — Все права защищены.</p>
+    <p style="margin-top: 5px; color: #666;">Ваши данные защищены и не передаются третьим лицам.</p>
 </footer>
 
 <style>
@@ -77,6 +156,7 @@ else
         margin: 20px 0;
         font-size: 2rem;
         font-weight: 600;
+        text-align: center;
     }
 
     form {
@@ -87,16 +167,27 @@ else
         flex-wrap: wrap;
     }
 
-        form input[type="text"] {
+        form input[type="text"],
+        .input-field {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 16px;
+            font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            padding: 12px 15px;
-            font-size: 16px;
             background-color: #fff;
-            width: 250px;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
 
-        form button {
+            form input[type="text"]:focus,
+            .input-field:focus {
+                border-color: #ff0000;
+                box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+                outline: none;
+            }
+
+        form button,
+        .yt-button {
             cursor: pointer;
             background-color: #FF0000;
             color: #fff;
@@ -108,12 +199,14 @@ else
             transition: background-color 0.3s, transform 0.3s;
         }
 
-            form button:hover {
+            form button:hover,
+            .yt-button:hover {
                 background-color: #cc0000;
                 transform: translateY(-2px);
             }
 
-            form button:active {
+            form button:active,
+            .yt-button:active {
                 background-color: #990000;
                 transform: translateY(1px);
             }
@@ -128,7 +221,6 @@ else
         border-radius: 8px;
         text-decoration: none;
         transition: background-color 0.3s, transform 0.3s;
-        margin-bottom: 20px;
     }
 
         .btn-show-all:hover {
@@ -179,7 +271,7 @@ else
             transition: color 0.3s;
         }
 
-        .video-card h3 a:hover {
-            color: #cc0000;
-        }
+            .video-card h3 a:hover {
+                color: #ff0000;
+            }
 </style>

@@ -57,15 +57,6 @@ namespace YouTubeApi.Controllers
             var videosRequest = youtubeService.Videos.List("statistics,snippet");
             videosRequest.Id = videoIdsString;
             var videosResponse = await videosRequest.ExecuteAsync();
-            //
-
-            //var videoList = searchResponse.Items.Select(item => new VideoDetails
-            //{
-            //    Title = item.Snippet.Title,
-            //    Link = $"https://www.youtube.com/watch?v={item.Id.VideoId}",
-            //    Thumbnail = item.Snippet.Thumbnails.Medium.Url,
-            //    PublishedAt = item.Snippet.PublishedAtDateTimeOffset
-            //}).OrderByDescending(video => video.PublishedAt).ToList();
 
             var videoStatic = videosResponse.Items.Select(item => new VideoDetails
             {
@@ -86,25 +77,6 @@ namespace YouTubeApi.Controllers
                 PrevPageToken = searchResponse.PrevPageToken
             };
 
-            //foreach (var item in searchResponse.Items)
-            //{
-            //    var video = new VideoEntity
-            //    {
-            //        Title = item.Snippet.Title,
-            //        Link = $"https://www.youtube.com/watch?v={item.Id.VideoId}",
-            //        Thumbnail = item.Snippet.Thumbnails.Medium.Url,
-            //        PublishedAt = item.Snippet.PublishedAtDateTimeOffset,
-            //        ChannelId = channelId,
-            //    };
-
-            //    if (!_context.Videos.Any(v => v.Link == video.Link))
-            //    {
-            //        _context.Videos.Add(video);
-            //    }
-            //}
-
-
-            //
             foreach (var item in videosResponse.Items)
             {
                 var video = new VideoEntity
@@ -137,6 +109,30 @@ namespace YouTubeApi.Controllers
                 .ToListAsync();
 
             return Ok(videos);
+        }
+
+        [HttpGet("analytics/view-trend/{channelId}")]
+        public async Task<IActionResult> GetViewTrend(string channelId)
+        {
+            if (string.IsNullOrWhiteSpace(channelId))
+                return BadRequest("Channel ID is required.");
+
+            var videos = await _context.Videos
+                .Where(v => v.ChannelId == channelId && v.PublishedAt != null)
+                .OrderBy(v => v.PublishedAt)
+                .ToListAsync();
+
+            if (!videos.Any())
+                return NotFound("No videos found for this channel.");
+
+            var trendData = videos.Select(v => new
+            {
+                Date = v.PublishedAt!.Value.UtcDateTime.ToString("yyyy-MM-dd"),
+                Views = v.ViewCount,
+                Title = v.Title
+            });
+
+            return Ok(trendData);
         }
 
     }

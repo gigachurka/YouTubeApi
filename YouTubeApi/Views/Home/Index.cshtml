@@ -32,7 +32,6 @@
     </p>
 </header>
 
-
 <h2 style="
     text-align: center;
     color: #222;
@@ -56,6 +55,7 @@
     </form>
     <a href="/" class="btn-show-all" style="align-self: flex-start;">Показать все видео</a>
 </div>
+
 
 @if (Model != null && Model.Any())
 {
@@ -94,6 +94,57 @@
             </div>
         }
     </div>
+    <div style="margin-top: 50px; max-width: 900px; margin-left: auto; margin-right: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+        <h2 style="text-align: center; margin-bottom: 30px;">Количество просмотров по дате</h2>
+        <canvas id="viewTrendChart" width="800" height="400"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const channelId = urlParams.get("channelId");
+
+            if (!channelId) return;
+
+            const res = await fetch(`/api/youtube/analytics/view-trend/${channelId}`);
+            if (!res.ok) return;
+
+            const data = await res.json();
+            const labels = data.map(x => x.date);
+            const views = data.map(x => x.views);
+
+            const ctx = document.getElementById('viewTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Количество просмотров',
+                        data: views,
+                        backgroundColor: 'rgba(229, 57, 53, 0.2)',
+                        borderColor: 'rgba(229, 57, 53, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Дата публикации' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Просмотры' }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 }
 else
 {

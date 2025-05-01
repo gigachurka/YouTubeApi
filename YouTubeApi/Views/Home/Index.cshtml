@@ -44,7 +44,7 @@
 </h2>
 
 <div style="max-width: 600px; margin: 0 auto 30px; display: flex; flex-direction: column; gap: 16px;">
-   
+
     <form method="post" action="/api/youtube/load" style="display: flex; gap: 10px;">
         <input type="text" name="channelId" placeholder="Введите Channel ID для загрузки информации о видео" required class="input-field" />
         <button type="submit" class="yt-button">Загрузить</button>
@@ -59,13 +59,38 @@
 
 @if (Model != null && Model.Any())
 {
-    <div class="video-container">
+    <div class="video-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
         @foreach (var video in Model)
         {
-            <div class="video-card">
-                <img src="@video.Thumbnail" width="100%" />
-                <h3><a href="@video.Link" target="_blank">@video.Title</a></h3>
-                <p>Дата публикации: @video.PublishedAt?.ToString("g")</p>
+            <div class="video-card" style="width: 300px; border: 1px solid #e0e0e0; padding: 15px; border-radius: 12px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <img src="@video.Thumbnail" alt="thumbnail" style="width: 100%; border-radius: 6px;" />
+
+                <h3 style="font-size: 16px; margin: 12px 0 6px;">
+                    <a href="@video.Link" target="_blank" style="text-decoration: none; color: black;">
+                        @video.Title
+                    </a>
+                </h3>
+
+
+                <p style="font-size: 13px; color: #888;">Опубликовано: @(video.PublishedAt?.ToString("dd MMM yyyy, HH:mm") ?? "Неизвестно")</p>
+
+                <!-- Контейнер для статистики -->
+                <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 14px; color: #555;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center;">
+                        <svg style="width:18px;height:18px; fill:#888;" viewBox="0 0 24 24"><path d="M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5M12,17C9.24,17 7,14.76 7,12C7,9.24 9.24,7 12,7C14.76,7 17,9.24 17,12C17,14.76 14.76,17 12,17Z" /></svg>
+                        <span>@video.ViewCount</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center;">
+                        <svg style="width:18px;height:18px; fill:#888;" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+                        <span>@video.LikeCount</span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center;">
+                        <svg style="width:18px;height:18px; fill:#888;" viewBox="0 0 24 24"><path d="M9,22A1,1 0 0,1 8,21V18H4A2,2 0 0,1 2,16V6A2,2 0 0,1 4,4H20A2,2 0 0,1 22,6V16A2,2 0 0,1 20,18H14L10.5,21.29C10.19,21.62 9.71,21.64 9.38,21.32C9.14,21.09 9,20.76 9,20.41V22Z" /></svg>
+                        <span>@video.CommentCount</span>
+                    </div>
+                </div>
             </div>
         }
     </div>
@@ -74,6 +99,7 @@ else
 {
     <p style="text-align: center; margin-top: 40px; color: #666;">Видео пока не найдены.</p>
 }
+
 <footer style="
     margin-top: 60px;
     padding: 20px 20px;
@@ -86,64 +112,24 @@ else
     border-radius: 12px 12px 0 0;
     animation: fadeInUp 0.8s ease-in-out;
 ">
-    <div style="margin-top: 15px; display: flex; justify-content: center; gap: 15px;">
-        <a href="https://instagram.com" target="_blank" style="
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
-            background-color: #e1306c;
-            color: white;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 14px;
-            transition: transform 0.2s;
-        " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            IG
-        </a>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-        <a href="https://discord.com" target="_blank" style="
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
-            background-color: #5865F2;
-            color: white;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 14px;
-            transition: transform 0.2s;
-        " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            DC
+    <div class="social-links">
+        <a href="https://www.instagram.com/kzhlnvk/" target="_blank" class="social-icon instagram">
+            <i class="fab fa-instagram"></i>
         </a>
-
-        <a href="https://x.com" target="_blank" style="
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
-            background-color: #1DA1F2;
-            color: white;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 14px;
-            transition: transform 0.2s;
-        " onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            X
+        <a href="https://discord.com" target="_blank" class="social-icon discord">
+            <i class="fab fa-discord"></i>
+        </a>
+        <a href="https://www.x.com/gigachurka/" target="_blank" class="social-icon x">
+            <i class="fab fa-X"></i>
         </a>
     </div>
 
     <p style="margin: 10px 0 0;">&copy; 2025 <strong>YouTube Видео Менеджер</strong> — Все права защищены.</p>
     <p style="margin-top: 5px; color: #666;">Ваши данные защищены и не передаются третьим лицам.</p>
 </footer>
-
-<style>
+ <style>
     body {
         background-color: #f9f9f9;
         font-family: 'Inter', sans-serif;
@@ -167,49 +153,49 @@ else
         flex-wrap: wrap;
     }
 
-        form input[type="text"],
-        .input-field {
-            flex: 1;
-            min-width: 250px;
-            padding: 12px 16px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #fff;
-            transition: border-color 0.3s, box-shadow 0.3s;
+    input[type="text"],
+    .input-field {
+        flex: 1;
+        min-width: 250px;
+        padding: 12px 16px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #fff;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+        input[type="text"]:focus,
+        .input-field:focus {
+            border-color: #ff0000;
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+            outline: none;
         }
 
-            form input[type="text"]:focus,
-            .input-field:focus {
-                border-color: #ff0000;
-                box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
-                outline: none;
-            }
+    button,
+    .yt-button {
+        cursor: pointer;
+        background-color: #FF0000;
+        color: #fff;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 16px;
+        transition: background-color 0.3s, transform 0.3s;
+    }
 
-        form button,
-        .yt-button {
-            cursor: pointer;
-            background-color: #FF0000;
-            color: #fff;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-size: 16px;
-            transition: background-color 0.3s, transform 0.3s;
+        button:hover,
+        .yt-button:hover {
+            background-color: #cc0000;
+            transform: translateY(-2px);
         }
 
-            form button:hover,
-            .yt-button:hover {
-                background-color: #cc0000;
-                transform: translateY(-2px);
-            }
-
-            form button:active,
-            .yt-button:active {
-                background-color: #990000;
-                transform: translateY(1px);
-            }
+        button:active,
+        .yt-button:active {
+            background-color: #990000;
+            transform: translateY(1px);
+        }
 
     .btn-show-all {
         display: inline-block;
@@ -264,14 +250,60 @@ else
         }
 
         .video-card h3 a {
-            text-decoration: none;
-            color: #111;
-            font-size: 1.2rem;
-            font-weight: bold;
-            transition: color 0.3s;
+            color: #e74c3c;
+            transition: color 0.3s ease, text-decoration 0.3s ease, transform 0.3s ease;
         }
 
             .video-card h3 a:hover {
-                color: #ff0000;
+                color: #f39c12;
+                text-decoration: underline;
+                transform: scale(1.05);
             }
+
+    .social-links {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .social-icon {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 20px; /* Размер иконки */
+        transition: transform 0.2s, background-color 0.3s;
+    }
+
+        .social-icon i {
+            font-size: 20px;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.1);
+        }
+
+    .instagram {
+        background-color: #e1306c;
+    }
+
+    .discord {
+        background-color: #5865F2;
+    }
+
+    .x {
+        /* background-color: #1DA1F2; */
+        background-color: black;
+    }
+
+    .social-icon:hover {
+        background-color: #444;
+    }
+
 </style>

@@ -74,7 +74,7 @@
 
                 <p style="font-size: 13px; color: #888;">Опубликовано: @(video.PublishedAt?.ToString("dd MMM yyyy, HH:mm") ?? "Неизвестно")</p>
 
-                <!-- Контейнер для статистики -->
+                <!-- Контейнер для отображения статистики -->
                 <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 14px; color: #555;">
                     <div style="display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center;">
                         <svg style="width:18px;height:18px; fill:#888;" viewBox="0 0 24 24"><path d="M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5M12,17C9.24,17 7,14.76 7,12C7,9.24 9.24,7 12,7C14.76,7 17,9.24 17,12C17,14.76 14.76,17 12,17Z" /></svg>
@@ -98,6 +98,12 @@
         <h2 style="text-align: center; margin-bottom: 30px;">Количество просмотров по дате</h2>
         <canvas id="viewTrendChart" width="800" height="400"></canvas>
     </div>
+
+    <div style="margin-top: 50px; max-width: 900px; margin-left: auto;  margin-right: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); flex: 1; min-width: 400px;">
+        <h2 style="text-align: center; margin-bottom: 30px;">Соотношение просмотров и лайков</h2>
+        <canvas id="viewsLikesChart" width="800" height="400"></canvas>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
@@ -107,15 +113,24 @@
 
             if (!channelId) return;
 
-            const res = await fetch(`/api/youtube/analytics/view-trend/${channelId}`);
-            if (!res.ok) return;
+            // Загрузка данных для первого графика
+            const resViews = await fetch(`/api/youtube/analytics/view-trend/${channelId}`);
+            if (!resViews.ok) return;
 
-            const data = await res.json();
-            const labels = data.map(x => x.date);
-            const views = data.map(x => x.views);
+            const dataViews = await resViews.json();
+            const labels = dataViews.map(x => x.date);
+            const views = dataViews.map(x => x.views);
 
-            const ctx = document.getElementById('viewTrendChart').getContext('2d');
-            new Chart(ctx, {
+            // Загрузка данных для второго графика через контроллер
+            const resLikes = await fetch(`/api/youtube/analytics/like-trend/${channelId}`);
+            if (!resLikes.ok) return;
+
+            const dataLikes = await resLikes.json();
+            const likes = dataLikes.map(x => x.likes);
+
+            // Первый график (просмотры + дата)
+            const ctxViews = document.getElementById('viewTrendChart').getContext('2d');
+            new Chart(ctxViews, {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -139,6 +154,63 @@
                         y: {
                             beginAtZero: true,
                             title: { display: true, text: 'Просмотры' }
+                        }
+                    }
+                }
+            });
+
+            // Второй график (соотношение просмотров и лайков)
+            const ctxViewsLikes = document.getElementById('viewsLikesChart').getContext('2d');
+            new Chart(ctxViewsLikes, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Просмотры',
+                            data: views,
+                            backgroundColor: 'rgba(66, 133, 244, 0.7)',
+                            borderColor: 'rgba(66, 133, 244, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Лайки',
+                            data: likes,
+                            backgroundColor: 'rgba(52, 168, 83, 0.7)',
+                            borderColor: 'rgba(52, 168, 83, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Дата публикации' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Количество' }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function(context) {
+                                    const views = context.dataset.data[context.dataIndex];
+                                    const likes = context.datasetIndex === 0 ?
+                                        context.chart.data.datasets[1].data[context.dataIndex] :
+                                        context.chart.data.datasets[0].data[context.dataIndex];
+
+                                    if (context.datasetIndex === 0) {
+                                        const ratio = (likes / views * 100).toFixed(2);
+                                        return `Соотношение лайков: ${ratio}%`;
+                                    } else {
+                                        const ratio = (views / likes).toFixed(2);
+                                        return `Соотношение просмотров: ${ratio}:1`;
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -48,12 +48,10 @@ namespace YouTubeApi.Controllers
             searchReaquest.Type = "video";
             var searchResponse = await searchReaquest.ExecuteAsync();
 
-            // Получаем все VideoIds
             var videoIds = searchResponse.Items.Select(item => item.Id.VideoId).ToList();
             var videoIdsString = string.Join(",", videoIds);
             //
 
-            // Делаем отдельный запрос для получения статистики
             var videosRequest = youtubeService.Videos.List("statistics,snippet");
             videosRequest.Id = videoIdsString;
             var videosResponse = await videosRequest.ExecuteAsync();
@@ -69,7 +67,6 @@ namespace YouTubeApi.Controllers
                 CommentCount = (int)(item.Statistics.CommentCount ?? 0)
             }).OrderByDescending(video => video.PublishedAt).ToList();
 
-            // Используем videoStatic в ответе
             var response = new YouTubeResponse()
             {
                 Video = videoStatic,
@@ -95,7 +92,6 @@ namespace YouTubeApi.Controllers
                     _context.Videos.Add(video);
                 }
             }
-            //
             await _context.SaveChangesAsync();
 
             return Ok(response);
@@ -135,5 +131,36 @@ namespace YouTubeApi.Controllers
             return Ok(trendData);
         }
 
+        [HttpGet("analytics/like-trend/{channelId}")]
+        public async Task<IActionResult> GetLikeTrend(string channelId)
+        {
+            if (string.IsNullOrWhiteSpace(channelId))
+                return BadRequest("Channel ID is required.");
+
+            var videos = await _context.Videos
+                .Where(v => v.ChannelId == channelId && v.PublishedAt != null)
+                .OrderBy(v => v.PublishedAt)
+                .Select(v => new {
+                    Date = v.PublishedAt!.Value.UtcDateTime.ToString("yyyy-MM-dd"),
+                    v.ViewCount,
+                    v.LikeCount,
+                    v.Title
+                })
+                .ToListAsync();
+
+            if (!videos.Any())
+                return NotFound("No videos found for this channel.");
+
+            var trendData = videos.Select(v => new
+            {
+                Date = v.Date,
+                Likes = v.LikeCount,
+                Views = v.ViewCount,
+                LikeRatio = v.ViewCount > 0 ? Math.Round((double)v.LikeCount / v.ViewCount * 100, 2) : 0,
+                Title = v.Title
+            });
+
+            return Ok(trendData);
+        }
     }
 }

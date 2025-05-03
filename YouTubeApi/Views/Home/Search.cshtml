@@ -1,0 +1,202 @@
+﻿@model List<YouTubeApi.Models.VideoEntity>
+@{
+    ViewData["Title"] = "Поиск видео";
+}
+<nav style="background-color: #e53935; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
+    <div style="font-size: 1.5rem; font-weight: bold;">
+        Видео Менеджер
+    </div>
+    <div style="display: flex; gap: 20px;">
+        <a href="@Url.Action("Index", "Home")" style="color: #fff; text-decoration: none;">Главная</a>
+        @* <a href="@Url.Action("Search", "Home")" style="color: #fff; text-decoration: none;">Поиск</a> *@
+    </div>
+</nav>
+<!-- Шрифты и стили -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary-color: #e53935;
+    --hover-color: #c62828;
+    --accent-bg: #ffffff;
+    --accent-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    --border-radius: 12px;
+    --font-main: 'Inter', sans-serif;
+}
+
+body {
+    font-family: var(--font-main);
+    background: #f6f7fb;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+nav {
+    background: var(--primary-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    box-shadow: var(--accent-shadow);
+}
+
+nav a {
+    color: white;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+nav a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+}
+
+header {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+header h1 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    color: #666;
+    font-size: 1rem;
+}
+
+.table-container {
+    max-width: 1100px;
+    margin: 0 auto 3rem;
+    padding: 1.5rem;
+    background: var(--accent-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--accent-shadow);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+th, td {
+    padding: 14px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f8f8f8;
+    font-weight: 600;
+    color: #444;
+}
+
+td img {
+    width: 90px;
+    border-radius: 10px;
+    box-shadow: var(--accent-shadow);
+}
+
+.video-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.video-title a {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 1rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.video-title a:hover {
+    color: var(--hover-color);
+    text-decoration: underline;
+}
+
+.video-id {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+@@media (max-width: 768px) {
+    .video-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    td img {
+        width: 100%;
+    }
+}
+
+</style>
+
+<!-- Контент -->
+<header>
+    <h1>Результаты поиска</h1>
+    <p>Здесь отображаются загруженные видео с YouTube</p>
+</header>
+
+<div class="table-container">
+    <table id="videoTable">
+        <thead>
+            <tr>
+                <th>Видео</th>
+                <th>Дата</th>
+                <th>Просмотры</th>
+                <th>Лайки</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var video in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="video-info">
+                            <img src="@video.Thumbnail" alt="Thumbnail" />
+                            <div class="video-title">
+                                <a href="https://youtube.com/watch?v=@video.Id" target="_blank">@video.Title</a>
+                                <div class="video-id">@video.Id</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@video.PublishedAt.ToString()</td>
+                    <td>@string.Format("{0:N0}", video.ViewCount)</td>
+                    <td>@string.Format("{0:N0}", video.LikeCount)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#videoTable').DataTable({
+            language: {
+                search: "🔍 Поиск:",
+                lengthMenu: "Показать _MENU_ видео",
+                info: "Показано _START_–_END_ из _TOTAL_ видео",
+                paginate: {
+                    first: "Первая",
+                    last: "Последняя",
+                    next: "→",
+                    previous: "←"
+                }
+            }
+        });
+    });
+</script>

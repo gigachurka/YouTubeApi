@@ -29,5 +29,23 @@ namespace YouTubeApi.Controllers
 
             return View(videos);
         }
+
+
+        public async Task<IActionResult> Search(string? channelId)
+        {
+            //List <VideoEntity> videos =new List<VideoEntity>();
+            IQueryable<VideoEntity> query = _context.Videos;
+
+            if (!string.IsNullOrEmpty(channelId))
+            {
+                query = query.Where(v => v.ChannelId == channelId);
+            }
+
+            var videos = await query
+                .OrderByDescending(v => v.PublishedAt)
+                .ToListAsync();
+            return View(videos);
+            
+        }
     }
 }

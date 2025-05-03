@@ -1,4 +1,5 @@
 ﻿@model List<YouTubeApi.Models.VideoEntity>
+
 <header style="
     background: #fff;
     padding: 40px 50px;
@@ -20,7 +21,7 @@
         gap: 12px;
     ">
         <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" style="height: 28px; vertical-align: middle;">
-        Видео Менеджер
+  ВидеоМенеджер
     </h1>
     <p style="
         margin-top: 8px;
@@ -31,6 +32,44 @@
         Получение информации о видео через YouTube API
     </p>
 </header>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<nav style="margin: 0 auto 30px; max-width: 1000px;">
+    <div style="
+        background-color: #e53935;
+        padding: 15px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #fff;
+    ">
+        <div style="font-size: 1.5rem; font-weight: bold;">
+            Просмотр базы данных
+        </div>
+        <div>
+            <a href="@Url.Action("Search", "Home")" style="
+    background-color: #fff;
+    color: #e53935;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease-in-out;
+" onmouseover="this.style.backgroundColor='#fce4ec';" onmouseout="this.style.backgroundColor='#fff';">
+                <i class="fas fa-search"></i>
+
+                
+            </a>
+
+        </div>
+    </div>
+</nav>
 
 <h2 style="
     text-align: center;
@@ -59,6 +98,8 @@
 
 @if (Model != null && Model.Any())
 {
+    
+
     <div class="video-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
         @foreach (var video in Model)
         {
@@ -103,8 +144,7 @@
         <h2 style="text-align: center; margin-bottom: 30px;">Соотношение просмотров и лайков</h2>
         <canvas id="viewsLikesChart" width="800" height="400"></canvas>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
@@ -254,6 +294,28 @@ else
 </footer>
 
  <style>
+/*     nav {
+        background: var(--primary-color);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #fff;
+        box-shadow: var(--accent-shadow);
+    }
+ */
+        nav a {
+            color: white;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+    nav a:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        text-decoration: none;
+    }
     body {
         background-color: #f9f9f9;
         font-family: 'Inter', sans-serif;

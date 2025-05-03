@@ -47,5 +47,30 @@ namespace YouTubeApi.Controllers
             return View(videos);
             
         }
+
+        public async Task<IActionResult> Analytics(string? channelId)
+        {
+            IQueryable<VideoEntity> query = _context.Videos;
+
+            if (!string.IsNullOrEmpty(channelId))
+            {
+                query = query.Where(v => v.ChannelId == channelId);
+            }
+
+            var videos = await query
+                .OrderByDescending(v => v.PublishedAt)
+                .ToListAsync();
+
+            var analyticsData = new
+            {
+                TotalViews = videos.Sum(v => v.ViewCount),
+                TotalLikes = videos.Sum(v => v.LikeCount),
+                TotalComments = videos.Sum(v => v.CommentCount),
+                VideoCount = videos.Count,
+                Videos = videos
+            };
+
+            return View(analyticsData);
+        }
     }
 }

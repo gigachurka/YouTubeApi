@@ -131,38 +131,36 @@ namespace YouTubeApi.Controllers
             return Ok(trendData);
         }
 
-        [HttpGet("channel-info/{channelId}")]
-        public async Task<IActionResult> GetChannelInfo(string channelId)
+        [HttpGet("analytics/like-trend/{channelId}")]
+        public async Task<IActionResult> GetLikeTrend(string channelId)
         {
             if (string.IsNullOrWhiteSpace(channelId))
                 return BadRequest("Channel ID is required.");
 
-            var youtubeService = new YouTubeService(new BaseClientService.Initializer
+            var videos = await _context.Videos
+                .Where(v => v.ChannelId == channelId && v.PublishedAt != null)
+                .OrderBy(v => v.PublishedAt)
+                .Select(v => new {
+                    Date = v.PublishedAt!.Value.UtcDateTime.ToString("yyyy-MM-dd"),
+                    v.ViewCount,
+                    v.LikeCount,
+                    v.Title
+                })
+                .ToListAsync();
+
+            if (!videos.Any())
+                return NotFound("No videos found for this channel.");
+
+            var trendData = videos.Select(v => new
             {
-                ApiKey = "AIzaSyCAc0C3r_XNElzvji9CnFhpzcGm7rhMCkg",
-                ApplicationName = "MyYouTubeApp"
+                Date = v.Date,
+                Likes = v.LikeCount,
+                Views = v.ViewCount,
+                LikeRatio = v.ViewCount > 0 ? Math.Round((double)v.LikeCount / v.ViewCount * 100, 2) : 0,
+                Title = v.Title
             });
 
-            var channelRequest = youtubeService.Channels.List("snippet,statistics");
-            channelRequest.Id = channelId;
-            var channelResponse = await channelRequest.ExecuteAsync();
-
-            var channel = channelResponse.Items.FirstOrDefault();
-            if (channel == null)
-                return NotFound("Channel not found.");
-
-            var result = new
-            {
-                Title = channel.Snippet.Title,
-                Description = channel.Snippet.Description,
-                Thumbnail = channel.Snippet.Thumbnails.Medium.Url,
-                Subscribers = channel.Statistics.SubscriberCount,
-                TotalViews = channel.Statistics.ViewCount,
-                VideoCount = channel.Statistics.VideoCount
-            };
-
-            return Ok(result);
+            return Ok(trendData);
         }
-
     }
 }

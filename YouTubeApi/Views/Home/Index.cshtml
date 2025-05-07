@@ -9,20 +9,38 @@
     text-align: center;
     max-width: 1000px;
     animation: fadeIn 0.8s ease-in-out;
+    position: relative;
 ">
-    <h1 style="
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 700;
-        color: #e53935;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-    ">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" style="height: 28px; vertical-align: middle;">
-  ВидеоМенеджер
-    </h1>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 12px; position: relative;">
+        <h1 style="
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e53935;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        ">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" style="height: 28px; vertical-align: middle;">
+            ВидеоМенеджер
+        </h1>
+
+        <button onclick="toggleAuthOptions()" style="
+            position: absolute;
+            right: 0;
+            padding: 8px 16px;
+            background-color: #e53935;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.2s ease-in-out;
+        " onmouseover="this.style.backgroundColor='#d32f2f'" onmouseout="this.style.backgroundColor='#e53935'">
+            Регистрация
+        </button>
+    </div>
     <p style="
         margin-top: 8px;
         font-size: 1rem;
@@ -31,7 +49,67 @@
     ">
         Получение информации о видео через YouTube API
     </p>
+
+    <div id="authOptions" style="display: none; margin-top: 20px;">
+        <button onclick="showForm('login')" class="auth-toggle">Login</button>
+        <button onclick="showForm('signup')" class="auth-toggle">Sign Up</button>
+    </div>
+
+    <div id="loginForm" style="display: none; margin-top: 20px;">
+        <form method="post" asp-controller="Account" asp-action="Login" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+            <input type="text" name="Login" placeholder="Логин" required class="input-field" />
+            <input type="password" name="Password" placeholder="Пароль" required class="input-field" />
+            <button type="submit" class="yt-button">Войти</button>
+        </form>
+    </div>
+
+    <div id="signupForm" style="display: none; margin-top: 20px;">
+        <form method="post" asp-controller="Account" asp-action="Register" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+            <input type="text" name="Login" placeholder="Логин" required class="input-field" />
+            <input type="password" name="Password" placeholder="Пароль" required class="input-field" />
+            <input type="email" name="Email" placeholder="Email" required class="input-field" />
+            <button type="submit" class="yt-button">Зарегистрироваться</button>
+        </form>
+    </div>
 </header>
+
+<style>
+    .auth-toggle {
+        margin: 0 5px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        background-color: #e53935;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .auth-toggle:hover {
+            background-color: #d32f2f;
+        }
+</style>
+
+<script>
+    function toggleAuthOptions() {
+        const options = document.getElementById("authOptions");
+        const login = document.getElementById("loginForm");
+        const signup = document.getElementById("signupForm");
+        options.style.display = options.style.display === "none" ? "block" : "none";
+        login.style.display = "none";
+        signup.style.display = "none";
+    }
+
+    function showForm(type) {
+        document.getElementById("loginForm").style.display = type === "login" ? "block" : "none";
+        document.getElementById("signupForm").style.display = type === "signup" ? "block" : "none";
+    }
+</script>
+
+
+
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <nav style="margin: 0 auto 30px; max-width: 1000px;">
@@ -92,7 +170,6 @@
         <input type="text" name="channelId" placeholder="Введите Channel ID" value="@Context.Request.Query["channelId"]" class="input-field" />
         <button type="submit" class="yt-button">Показать</button>
     </form>
-    @* <a href="/" class="btn-show-all" style="align-self: flex-start;">Показать все видео</a> *@
 </div>
 
 

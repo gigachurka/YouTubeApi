@@ -58,17 +58,18 @@
 
     <div id="loginForm" style="display: none; margin-top: 20px;">
         <form method="post" asp-controller="Account" asp-action="Login" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-            <input type="text" name="Login" placeholder="Логин" required class="input-field" />
-            <input type="password" name="Password" placeholder="Пароль" required class="input-field" />
+            <input type="text" name="login" placeholder="Логин" required class="input-field" />
+            <input type="password" name="password" placeholder="Пароль" required class="input-field" />
             <button type="submit" class="yt-button">Войти</button>
         </form>
     </div>
 
     <div id="signupForm" style="display: none; margin-top: 20px;">
-        <form method="post" asp-controller="Account" asp-action="Register" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-            <input type="text" name="Login" placeholder="Логин" required class="input-field" />
-            <input type="password" name="Password" placeholder="Пароль" required class="input-field" />
-            <input type="email" name="Email" placeholder="Email" required class="input-field" />
+        <form method="post" asp-controller="Account" asp-action="register" 
+            style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+            <input type="text" name="login" placeholder="Логин" required class="input-field" />
+            <input type="password" name="password" placeholder="Пароль" required class="input-field" />
+            <input type="email" name="email" placeholder="Email" required class="input-field" />
             <button type="submit" class="yt-button">Зарегистрироваться</button>
         </form>
     </div>

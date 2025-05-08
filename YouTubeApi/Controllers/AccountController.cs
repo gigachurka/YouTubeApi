@@ -17,12 +17,25 @@ namespace YouTubeApi.Controllers
         {
             _db = db;
         }
-
-        [HttpPost("user")]
-        public async Task<IActionResult> Register(string login, string password, string email)
+        [HttpGet("mixpanel/engage")]
+        public async Task<IActionResult> GetMixpanelData()
         {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync("https://api-js.mixpanel.com/engage/?verbose=1&ip=1");
+
+            var content = await response.Content.ReadAsStringAsync();
+            return Content(content, "application/json");
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromForm] string login, [FromForm] string password, [FromForm] string email)
+        {
+            Console.WriteLine("Register action called");
             if (await _db.Users.AnyAsync(u => u.Login == login))
                 return BadRequest("Пользователь с таким логином уже существует.");
+
+            if (!IsPasswordStrong(password, out var error))
+                return BadRequest($"Слабый пароль: {error}");
 
             var user = new User
             {
@@ -33,10 +46,48 @@ namespace YouTubeApi.Controllers
 
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
-            return Ok("Регистрация прошла успешно");
+            return RedirectToAction("Index", "Home");
         }
 
-        [HttpPost]
+        private bool IsPasswordStrong(string password, out string error)
+        {
+            error = string.Empty;
+
+            if (password.Length < 8)
+            {
+                error = "Пароль должен содержать минимум 8 символов.";
+                return false;
+            }
+
+            if (!password.Any(char.IsUpper))
+            {
+                error = "Пароль должен содержать хотя бы одну заглавную букву.";
+                return false;
+            }
+
+            if (!password.Any(char.IsLower))
+            {
+                error = "Пароль должен содержать хотя бы одну строчную букву.";
+                return false;
+            }
+
+            if (!password.Any(char.IsDigit))
+            {
+                error = "Пароль должен содержать хотя бы одну цифру.";
+                return false;
+            }
+
+            if (!password.Any(ch => "!@#$%^&*()-_=+[]{}|;:',.<>?/`~".Contains(ch)))
+            {
+                error = "Пароль должен содержать хотя бы один специальный символ.";
+                return false;
+            }
+
+            return true;
+        }
+
+
+        [HttpPost("Login")]
         public async Task<IActionResult> Login(string login, string password)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Login == login);
@@ -44,7 +95,6 @@ namespace YouTubeApi.Controllers
             if (user == null || user.PasswordHash != HashPassword(password))
                 return Unauthorized("Неверный логин или пароль");
 
-            // можно сохранить сессию или куки при желании
             return Ok("Успешный вход");
         }
 

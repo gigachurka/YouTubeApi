@@ -27,8 +27,9 @@ namespace YouTubeApi.Controllers
             return Content(content, "application/json");
         }
 
-        [HttpPost("register")]
+        [HttpPost]
         public async Task<IActionResult> Register([FromForm] string login, [FromForm] string password, [FromForm] string email)
+
         {
             Console.WriteLine("Register action called");
             if (await _db.Users.AnyAsync(u => u.Login == login))
@@ -94,8 +95,8 @@ namespace YouTubeApi.Controllers
 
             if (user == null || user.PasswordHash != HashPassword(password))
                 return Unauthorized("Неверный логин или пароль");
-
-            return Ok("Успешный вход");
+            // Можно сохранить ID в куки или TempData, если нужно передавать между страницами
+            return RedirectToAction("Index", "Home");
         }
 
         private string HashPassword(string password)

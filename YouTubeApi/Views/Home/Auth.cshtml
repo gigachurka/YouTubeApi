@@ -1,0 +1,119 @@
+﻿@model List<YouTubeApi.Models.User>
+
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+    <h2>Добро пожаловать</h2>
+
+    <button onclick="toggleAuthOptions()" class="main-toggle">
+        Регистрация / Вход
+    </button>
+
+    <div id="authOptions" style="display: none; margin-top: 20px;">
+        <button onclick="showForm('login')" class="auth-toggle">Войти</button>
+        <button onclick="showForm('signup')" class="auth-toggle">Регистрация</button>
+    </div>
+
+    <div id="loginForm" class="auth-form">
+        <form method="post" asp-controller="Account" asp-action="Login">
+            <input type="text" name="login" placeholder="Логин" required />
+            <input type="password" name="password" placeholder="Пароль" required />
+            <button type="submit">Войти</button>
+        </form>
+    </div>
+
+    <div id="signupForm" class="auth-form">
+        <form method="post" asp-controller="Account" asp-action="Register">
+
+            <input type="text" name="login" placeholder="Логин" required />
+            <input type="password" name="password" placeholder="Пароль" required />
+            <input type="email" name="email" placeholder="Email" required />
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .main-toggle {
+        padding: 10px 20px;
+        background-color: #e53935;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .main-toggle:hover {
+            background-color: #d32f2f;
+        }
+
+    .auth-toggle {
+        margin: 0 10px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        background-color: #1976d2;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .auth-toggle:hover {
+            background-color: #1565c0;
+        }
+
+    .auth-form {
+        display: none;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 400px;
+    }
+
+        .auth-form form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .auth-form input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .auth-form button {
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .auth-form button:hover {
+                background-color: #43a047;
+            }
+</style>
+
+<script>
+    function toggleAuthOptions() {
+        const options = document.getElementById("authOptions");
+        const login = document.getElementById("loginForm");
+        const signup = document.getElementById("signupForm");
+        options.style.display = options.style.display === "none" ? "block" : "none";
+        login.style.display = "none";
+        signup.style.display = "none";
+    }
+
+    function showForm(type) {
+        document.getElementById("loginForm").style.display = type === "login" ? "block" : "none";
+        document.getElementById("signupForm").style.display = type === "signup" ? "block" : "none";
+    }
+</script>
+
+
+

@@ -29,8 +29,19 @@ namespace YouTubeApi.Controllers
 
             return View(videos);
         }
+        /// <summary>
+        /// Auth + Index
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Index()
+        {
+            return RedirectToAction("Auth");
+        }
 
-
+        public IActionResult Auth()
+        {
+            return View(); // ищет Views/Home/Auth.cshtml
+        }
         public async Task<IActionResult> Search(string? channelId)
         {
             //List <VideoEntity> videos =new List<VideoEntity>();
@@ -47,6 +58,9 @@ namespace YouTubeApi.Controllers
             return View(videos);
             
         }
+
+    }
+}
 
         //public async Task<IActionResult> Analytics(string? channelId)
         //{
@@ -72,5 +86,3 @@ namespace YouTubeApi.Controllers
 
         //    return View(analyticsData);
         //}
-    }
-}

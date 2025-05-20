@@ -1,4 +1,4 @@
-using CustomIdentityApp.ViewModels;
+using YouTubeApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using YouTubeApi.Data;

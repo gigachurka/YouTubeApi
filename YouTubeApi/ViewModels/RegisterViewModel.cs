@@ -5,6 +5,7 @@ namespace YouTubeApi.ViewModels
     public class RegisterViewModel
     {
         [Required]
+        [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
 
@@ -18,15 +19,13 @@ namespace YouTubeApi.ViewModels
         public string Password { get; set; }
 
         [Required]
-        [Compare("Password", ErrorMessage = "Пароли не совпадают")]
         [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "Пароли не совпадают")]
         [Display(Name = "Подтвердить пароль")]
         public string PasswordConfirm { get; set; }
 
         [Required]
         [Display(Name = "YouTube ID")]
-
         public string ChannelId { get; set; }
-
     }
 }

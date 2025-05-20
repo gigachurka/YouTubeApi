@@ -1,32 +1,10 @@
-﻿//namespace YouTubeApi.Models
-//{
-//    using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
 
-//    public class User
-//    {
-//        public int Id { get; set; }
-
-//        [Required]
-//        public string Login { get; set; }
-
-//        [Required]
-//        public string PasswordHash { get; set; }
-
-//        [Required]
-//        [EmailAddress]
-//        public string Email { get; set; }
-//    }
-
-//}
-
-using Microsoft.AspNetCore.Identity;
- 
-namespace CustomIdentityApp.ViewModels
+namespace YouTubeApi.Models
 {
     public class User : IdentityUser
     {
         public int Year { get; set; }
         public string ChannelId { get; set; } = string.Empty;
-
     }
 }

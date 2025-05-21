@@ -38,16 +38,7 @@
 
 @if (Model.CurrentUser != null)
 {
-    <div class="main-container" style="margin: 32px auto;">
-        <div style="font-size: 2.5rem; background: rgba(255,255,255,0.15); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; color: #d32f2f;">
-            <i class="fas fa-user"></i>
-        </div>
-        <div style="flex: 1;">
-            <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 4px; color: black;">@Model.CurrentUser.Email</div>
-            <div style="font-size: 1rem; opacity: 0.95; color: black;">YouTube Channel ID: <span style="font-weight: 500;">@Model.CurrentUser.ChannelId</span></div>
-            <div style="font-size: 1rem; opacity: 0.95; color: black;">Год рождения: <span style="font-weight: 500;">@Model.CurrentUser.Year</span></div>
-        </div>
-    </div>
+    <div class="user-email-glass">@Model.CurrentUser.Email</div>
 }
 
 <div id="authOptions" style="display: none; margin-top: 20px;">
@@ -56,6 +47,7 @@
 </div>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap" rel="stylesheet">
 
 <nav style="margin: 0 auto 30px; max-width: 1000px;">
     <div style="
@@ -71,8 +63,8 @@
         <div style="font-size: 1.5rem; font-weight: bold;">
             Просмотр базы данных
         </div>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <a href="@Url.Action("Search", "Home")" style="
+        <div  class="btn" style="display: flex; align-items: center; gap: 12px;">
+            <a href="@Url.Action("Search", "Home")" class="yt-btn" style="
                 background-color: #fff;
                 color: #d32f2f;
                 padding: 8px 16px;
@@ -87,10 +79,20 @@
             " onmouseover="this.style.backgroundColor='#fbe9e7';" onmouseout="this.style.backgroundColor='#fff';">
                 <i class="fas fa-search"></i>
             </a>
+            <button id="themeSwitchBtn" class="theme-switch yt-btn" type="button" aria-label="Сменить тему">
+                <span class="theme-switch-inner">
+                    <span class="theme-switch-icon"><i id="themeSwitchIcon" class="fas fa-sun"></i></span>
+                    <span class="theme-switch-label day">День</span>
+                    <span class="theme-switch-label night">Ночь</span>
+                </span>
+            </button>
             @if (Model.CurrentUser != null)
             {
+                <a href="/Home/Profile" title="Профиль" class="profile-icon-link yt-btn">
+                    <i class="fas fa-user"></i>
+                </a>
                 <form asp-controller="Account" asp-action="Logout" method="post" style="margin: 0;">
-                    <button type="submit" class="logout-btn" title="Выйти из аккаунта">
+                    <button type="submit" class="logout-btn yt-btn" title="Выйти из аккаунта">
                         <i class="fas fa-sign-out-alt"></i>
                         <span class="logout-text">Выйти</span>
                     </button>
@@ -117,6 +119,31 @@
         <button id="showBtn" class="yt-button" type="button">Показать</button>
     </div>
 </div>
+
+<script>
+    function setThemeSwitch(dark) {
+        const btn = document.getElementById('themeSwitchBtn');
+        const icon = document.getElementById('themeSwitchIcon');
+        if (dark) {
+            document.body.classList.add('dark-theme');
+            btn.classList.add('dark');
+            icon.className = 'fas fa-moon';
+        } else {
+            document.body.classList.remove('dark-theme');
+            btn.classList.remove('dark');
+            icon.className = 'fas fa-sun';
+        }
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+    document.getElementById('themeSwitchBtn').onclick = function () {
+        setThemeSwitch(!document.body.classList.contains('dark-theme'));
+    };
+    window.onload = function () {
+        if (localStorage.getItem('theme') === 'dark') setThemeSwitch(true);
+        else setThemeSwitch(false);
+    };
+</script>
+
 <script>
 document.getElementById('loadBtn').addEventListener('click', async function() {
     const channelId = document.getElementById('channelIdInput').value;
@@ -197,6 +224,12 @@ document.getElementById('showBtn').addEventListener('click', function() {
        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
+        function getTitleColor() {
+            return document.body.classList.contains('dark-theme') ? '#43a047' : '#222';
+        }
+    </script>
+
+    <script>
         document.addEventListener("DOMContentLoaded", async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const channelId = urlParams.get("channelId");
@@ -218,93 +251,111 @@ document.getElementById('showBtn').addEventListener('click', function() {
             const dataLikes = await resLikes.json();
             const likes = dataLikes.map(x => x.likes);
 
-            // Первый график (просмотры + дата)
-            const ctxViews = document.getElementById('viewTrendChart').getContext('2d');
-            new Chart(ctxViews, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Количество просмотров',
-                        data: views,
-                        backgroundColor: 'rgba(211, 47, 47, 0.2)',
-                        borderColor: 'rgba(211, 47, 47, 1)',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        pointRadius: 3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: { display: true, text: 'Дата публикации' }
+            let viewChart, viewsLikesChart;
+            function renderCharts() {
+                if (viewChart) viewChart.destroy();
+                if (viewsLikesChart) viewsLikesChart.destroy();
+
+                // Первый график (просмотры + дата)
+                const ctxViews = document.getElementById('viewTrendChart').getContext('2d');
+                viewChart = new Chart(ctxViews, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Количество просмотров',
+                            data: views,
+                            backgroundColor: 'rgba(211, 47, 47, 0.2)',
+                            borderColor: 'rgba(211, 47, 47, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            pointRadius: 3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'График просмотров по дате',
+                                color: getTitleColor(),
+                                font: { size: 22 }
+                            }
                         },
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Просмотры' }
+                        scales: {
+                            x: { title: { display: true, text: 'Дата публикации' } },
+                            y: { beginAtZero: true, title: { display: true, text: 'Просмотры' } }
                         }
                     }
-                }
-            });
+                });
 
-            // Второй график (соотношение просмотров и лайков)
-            const ctxViewsLikes = document.getElementById('viewsLikesChart').getContext('2d');
-            new Chart(ctxViewsLikes, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Просмотры',
-                            data: views,
-                            backgroundColor: 'rgba(66, 133, 244, 0.7)',
-                            borderColor: 'rgba(66, 133, 244, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'Лайки',
-                            data: likes,
-                            backgroundColor: 'rgba(52, 168, 83, 0.7)',
-                            borderColor: 'rgba(52, 168, 83, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: { display: true, text: 'Дата публикации' }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Количество' }
-                        }
+                // Второй график (соотношение просмотров и лайков)
+                const ctxViewsLikes = document.getElementById('viewsLikesChart').getContext('2d');
+                viewsLikesChart = new Chart(ctxViewsLikes, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Просмотры',
+                                data: views,
+                                backgroundColor: 'rgba(66, 133, 244, 0.7)',
+                                borderColor: 'rgba(66, 133, 244, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Лайки',
+                                data: likes,
+                                backgroundColor: 'rgba(52, 168, 83, 0.7)',
+                                borderColor: 'rgba(52, 168, 83, 1)',
+                                borderWidth: 1
+                            }
+                        ]
                     },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                afterLabel: function(context) {
-                                    const views = context.dataset.data[context.dataIndex];
-                                    const likes = context.datasetIndex === 0 ?
-                                        context.chart.data.datasets[1].data[context.dataIndex] :
-                                        context.chart.data.datasets[0].data[context.dataIndex];
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Соотношение просмотров и лайков',
+                                color: getTitleColor(),
+                                font: { size: 22 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(context) {
+                                        const views = context.dataset.data[context.dataIndex];
+                                        const likes = context.datasetIndex === 0 ?
+                                            context.chart.data.datasets[1].data[context.dataIndex] :
+                                            context.chart.data.datasets[0].data[context.dataIndex];
 
-                                    if (context.datasetIndex === 0) {
-                                        const ratio = (likes / views * 100).toFixed(2);
-                                        return `Соотношение лайков: ${ratio}%`;
-                                    } else {
-                                        const ratio = (views / likes).toFixed(2);
-                                        return `Соотношение просмотров: ${ratio}:1`;
+                                        if (context.datasetIndex === 0) {
+                                            const ratio = (likes / views * 100).toFixed(2);
+                                            return `Соотношение лайков: ${ratio}%`;
+                                        } else {
+                                            const ratio = (views / likes).toFixed(2);
+                                            return `Соотношение просмотров: ${ratio}:1`;
+                                        }
                                     }
                                 }
                             }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'Дата публикации' } },
+                            y: { beginAtZero: true, title: { display: true, text: 'Количество' } }
                         }
                     }
-                }
+                });
+            }
+
+            renderCharts();
+
+            // Перерисовка при смене темы
+            const observer = new MutationObserver(() => {
+                renderCharts();
             });
+            observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
         });
     </script>
 }
@@ -533,9 +584,9 @@ else
     }
 
     .logout-btn {
-        background: #fff;
-        color: #d32f2f;
-        border: none;
+        background: #232323;
+        color: #fff;
+        border: 2px solid #232323;
         border-radius: 6px;
         padding: 8px 18px 8px 14px;
         font-size: 1rem;
@@ -545,12 +596,13 @@ else
         gap: 8px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         cursor: pointer;
-        transition: background 0.2s, color 0.2s;
+        transition: background 0.2s, color 0.2s, border 0.2s;
         outline: none;
     }
     .logout-btn:hover {
-        background: #fbe9e7;
-        color: #b71c1c;
+        background: #fff;
+        color: #d32f2f;
+        border: 2px solid #d32f2f;
     }
     .logout-btn i {
         font-size: 1.1em;
@@ -565,5 +617,239 @@ else
         flex-direction: column;
         text-align: left;
         width: 1000px;
+    }
+
+    .user-email-glass {
+        margin: 0 auto 18px auto;
+        max-width: 340px;
+        background: rgba(255,255,255,0.10);
+        box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border-radius: 12px;
+        border: 1px solid #fff;
+        font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+        font-size: 1.18rem;
+        font-weight: 600;
+        color: #ff0000;
+        text-align: center;
+        padding: 16px 0 14px 0;
+        letter-spacing: 0.5px;
+        transition: box-shadow 0.2s;
+    }
+    .user-email-glass:hover {
+        box-shadow: 0 12px 36px 0 rgba(31,38,135,0.22);
+    }
+
+    .profile-icon-link {
+        background: #232323;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(31,38,135,0.10);
+        padding: 6px;
+        margin-right: 10px;
+        display: flex;
+        align-items: center;
+        transition: box-shadow 0.2s, background 0.2s;
+        border: 1.5px solid #232323;
+    }
+    .profile-icon-link:hover {
+        background: #fff;
+        box-shadow: 0 6px 18px rgba(211,47,47,0.18);
+    }
+    .profile-icon-link i {
+        font-size: 1.5rem;
+        color: #d32f2f;
+    }
+
+    .dark-theme {
+        background-color: #111 !important;
+        color: #fff !important;
+    }
+    .dark-theme header,
+    .dark-theme nav,
+    .dark-theme .video-card,
+    .dark-theme .user-email-glass,
+    .dark-theme .profile-icon-link,
+    .dark-theme .video-container,
+    .dark-theme .main-container,
+    .dark-theme .profile-glass,
+    .dark-theme .table-container,
+    .dark-theme footer {
+        background: #181818 !important;
+        color: #fff !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
+        border-color: #d32f2f !important;
+    }
+    .dark-theme .video-card {
+        border: 1px solid #d32f2f !important;
+    }
+    .dark-theme .profile-label,
+    .dark-theme .user-email-glass {
+        color: #fff !important;
+    }
+    .dark-theme .yt-button,
+    .dark-theme button {
+        background-color: #d32f2f !important;
+        color: #fff !important;
+        border: 1px solid #ff1744 !important;
+    }
+    .dark-theme .yt-button:hover,
+    .dark-theme button:hover {
+      /*   background-color: #ff1744 !important; */
+        color: #fff !important;
+    }
+    .dark-theme input[type="text"],
+    .dark-theme .input-field {
+        background-color: #111 !important;
+        color: #fff !important;
+        border: 1px solid #d32f2f !important;
+    }
+    .dark-theme .logout-btn {
+        background: #232323 !important;
+        color: #fff !important;
+        border: 2px solid #232323 !important;
+    }
+    .dark-theme .logout-btn:hover {
+        background: #fff !important;
+        color: #d32f2f !important;
+        border: 2px solid #d32f2f !important;
+    }
+    .dark-theme .social-icon {
+        background: #181818 !important;
+        color: #ff1744 !important;
+    }
+    .dark-theme .social-icon:hover {
+        background: #d32f2f !important;
+        color: #fff !important;
+    }
+    .dark-theme .video-card h3 a {
+        color: #ff1744 !important;
+    }
+    .dark-theme .video-card h3 a:hover {
+        color: #fff !important;
+        text-decoration: underline;
+    }
+    .dark-theme .profile-icon-link {
+        background: #232323 !important;
+        border: 1.5px solid #232323 !important;
+    }
+    .dark-theme .profile-icon-link:hover {
+        background: #fff !important;
+        color: #d32f2f !important;
+    }
+    .dark-theme .video-container {
+        background: #111 !important;
+    }
+    .dark-theme .table-container {
+        background: #181818 !important;
+        color: #fff !important;
+    }
+    .dark-theme th {
+        background-color: #181818 !important;
+        color: #ff0000 !important;
+    }
+    .dark-theme td {
+        background-color: #111 !important;
+        color: #fff !important;
+    }
+    .dark-theme .btn-show-all {
+        background-color: #d32f2f !important;
+        color: #fff !important;
+        border: 1px solid #ff1744 !important;
+    }
+    .dark-theme .btn-show-all:hover {
+        background-color: #ff1744 !important;
+        color: #fff !important;
+    }
+    .theme-switch {
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        border: none;
+        background: none;
+        padding: 0;
+        margin: 0;
+    }
+    .theme-switch-inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        width: 110px;
+        height: 32px;
+        background: #fff;
+        border-radius: 20px;
+        border: 2px solid none;
+        position: relative;
+        transition: background 0.3s, border 0.3s;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    .theme-switch.dark .theme-switch-inner {
+        background: #181818;
+        border: 2px solid none;
+    }
+    .theme-switch-label {
+        flex: unset;
+        margin-left: -5px; 
+        text-align: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #222;
+        letter-spacing: 1px;
+        transition: color 0.3s;
+        z-index: 2;
+        line-height: 32px;
+        white-space: nowrap;
+    }
+    .theme-switch.dark .theme-switch-label {
+        color: #fff;
+    }
+    .theme-switch-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: transparent;
+        border-radius: 50%;
+        font-size: 1.2em;
+        color: #d32f2f;
+        box-shadow: none;
+        transition: color 0.3s, background 0.3s;
+        z-index: 3;
+        position: static;
+    }
+    .theme-switch.dark .theme-switch-icon {
+        background: transparent;
+        color: #fff;
+    }
+    .theme-switch .theme-switch-label.day {
+        opacity: 1;
+        transition: opacity 0.3s;
+    }
+    .theme-switch .theme-switch-label.night {
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .theme-switch.dark .theme-switch-label.day {
+        opacity: 0;
+    }
+    .theme-switch.dark .theme-switch-label.night {
+        opacity: 1;
+    }
+    .dark-theme nav > div {
+        background-color: #232323 !important;
+    }
+    .yt-btn {
+        background: #fff;
+        color: #d32f2f;
+        border: none;
+    }
+    .dark-theme .yt-btn {
+        background: #232323 !important;
+        color: #fff !important;
+        border: none !important;
     }
 </style>

@@ -77,6 +77,39 @@ namespace YouTubeApi.Controllers
             
         }
 
+        public async Task<IActionResult> Profile(string id)
+        {
+            User user = null;
+
+            if (!string.IsNullOrEmpty(id))
+                user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null && User.Identity != null && User.Identity.IsAuthenticated)
+                user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return RedirectToAction("Index");
+
+            var videos = await _context.Videos
+                .Where(v => v.ChannelId == user.ChannelId)
+                .OrderByDescending(v => v.PublishedAt)
+                .ToListAsync();
+
+            var model = new YouTubeApi.ViewModels.ProfileViewModel
+            {
+                User = user,
+                Videos = videos
+            };
+            return View(model);
+        }
+
+        public async Task<IActionResult> MyProfile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Index");
+            return RedirectToAction("Profile", new { id = user.Id });
+        }
     }
 }
 

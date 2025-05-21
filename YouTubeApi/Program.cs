@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using YouTubeApi.Data;
 using Google.Apis.YouTube.v3;
+using YouTubeApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,9 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
+// Регистрируем сервис загрузки видео
+builder.Services.AddScoped<YouTubeVideoLoaderService>();
 
 var app = builder.Build();
 

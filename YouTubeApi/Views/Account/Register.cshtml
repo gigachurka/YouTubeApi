@@ -10,6 +10,12 @@
 		<button id="tabLogin" type="button" class="tab-btn" onclick="redirectToLogin()">Вход</button>
 	</div>
 
+	<div style="display: flex; justify-content: flex-end; max-width: 420px; margin: 0 auto 10px auto;">
+		<button id="themeToggleRegister" class="yt-button theme-btn" style="background: rgba(255,255,255,0.25); color: #d32f2f; border: 1px solid #d32f2f; font-size: 1.1rem; border-radius: 10px; padding: 8px 18px; margin-top: 10px; margin-bottom: 10px; transition: background 0.2s;">
+			<i class="fas fa-moon"></i> Сменить тему
+		</button>
+	</div>
+
 	<div id="registerForm">
 		<form asp-action="Register" method="post">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -180,6 +186,48 @@
 		color: #bdbdbd;
 		opacity: 1;
 	}
+
+	.dark-theme, .dark-theme body {
+		background-color: #111 !important;
+		color: #fff !important;
+	}
+	.dark-theme .glass-bg {
+		background: #181818 !important;
+		color: #fff !important;
+		border: 1px solid #d32f2f !important;
+	}
+	.dark-theme .tab-btn {
+		color: #fff !important;
+		background: #181818 !important;
+		border-bottom: 2px solid #d32f2f !important;
+	}
+	.dark-theme .tab-btn.active {
+		background: #d32f2f !important;
+		color: #fff !important;
+	}
+	.dark-theme .yt-button {
+		background-color: #d32f2f !important;
+		color: #fff !important;
+		border: 1px solid #ff1744 !important;
+	}
+	.dark-theme .yt-button:hover {
+		background-color: #ff1744 !important;
+		color: #fff !important;
+	}
+	.dark-theme .input-group input[type="text"],
+	.dark-theme .input-group input[type="email"],
+	.dark-theme .input-group input[type="password"],
+	.dark-theme .input-group input[type="number"] {
+		background-color: #111 !important;
+		color: #fff !important;
+		border: 1px solid #d32f2f !important;
+	}
+	.dark-theme .input-group label {
+		color: #ff1744 !important;
+	}
+	.dark-theme .text-danger {
+		color: #ff1744 !important;
+	}
 </style>
 
 <script>
@@ -211,4 +259,21 @@
 	function redirectToLogin() {
 		window.location.href = '/Account/Login';
 	}
+	function setThemeClassRegister(dark) {
+		if (dark) {
+			document.body.classList.add('dark-theme');
+			document.getElementById('themeToggleRegister').innerHTML = '<i class="fas fa-sun"></i> Светлая тема';
+		} else {
+			document.body.classList.remove('dark-theme');
+			document.getElementById('themeToggleRegister').innerHTML = '<i class="fas fa-moon"></i> Ночная тема';
+		}
+		localStorage.setItem('theme', dark ? 'dark' : 'light');
+	}
+	document.getElementById('themeToggleRegister').onclick = function () {
+		setThemeClassRegister(!document.body.classList.contains('dark-theme'));
+	};
+	window.onload = function () {
+		if (localStorage.getItem('theme') === 'dark') setThemeClassRegister(true);
+		else setThemeClassRegister(false);
+	};
 </script>

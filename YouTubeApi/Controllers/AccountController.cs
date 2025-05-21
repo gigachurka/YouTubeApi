@@ -4,24 +4,27 @@ using Microsoft.AspNetCore.Identity;
 using YouTubeApi.ViewModels;
 using YouTubeApi.Models;
 using Microsoft.Extensions.Logging;
+using YouTubeApi.Services;
 
 namespace YouTubeApi.Controllers
 {
     public class AccountController : Controller
     {
         private readonly UserManager<User> _userManager;
-
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<AccountController> _logger;
+        private readonly YouTubeVideoLoaderService _videoLoader;
 
         public AccountController(
             UserManager<User> userManager, 
             SignInManager<User> signInManager,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            YouTubeVideoLoaderService videoLoader)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _videoLoader = videoLoader;
         }
 
         [HttpGet]
@@ -54,6 +57,7 @@ namespace YouTubeApi.Controllers
                 {
                     _logger.LogInformation("Пользователь успешно создан");
                     await _signInManager.SignInAsync(user, false);
+                    await _videoLoader.LoadVideosByChannelIdAsync(user.ChannelId);
                     return RedirectToAction("Index", "Home");
                 }
                 else

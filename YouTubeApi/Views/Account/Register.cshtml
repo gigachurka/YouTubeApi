@@ -1,8 +1,11 @@
 ﻿<!DOCTYPE html>
 @model YouTubeApi.ViewModels.RegisterViewModel
+@{
+	var currentYear = DateTime.Now.Year;
+}
 
-<div style="max-width: 400px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 32px 28px;">
-	<div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 24px;">
+<div class="glass-bg">
+	<div class="tab-panel">
 		<button id="tabRegister" type="button" class="tab-btn active" onclick="showTab('register')">Регистрация</button>
 		<button id="tabLogin" type="button" class="tab-btn" onclick="redirectToLogin()">Вход</button>
 	</div>
@@ -10,29 +13,32 @@
 	<div id="registerForm">
 		<form asp-action="Register" method="post">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-			<div>
+			<div class="input-group">
 				<label asp-for="Email"></label>
-				<input asp-for="Email" />
+				<input asp-for="Email" placeholder="Введите email" />
 				<span asp-validation-for="Email" class="text-danger"></span>
 			</div>
-			<div>
-				<label asp-for="Year"></label>
-				<input asp-for="Year" />
+			<div class="input-group">
+				<label asp-for="Year">Год рождения</label>
+				<div class="year-row">
+					<input id="yearInput" name="Year" type="number" min="1911" max="@currentYear" value="" placeholder="Год" oninput="syncYearRange()" />
+					<input id="yearRange" type="range" min="1911" max="@currentYear" value="2000" oninput="syncYearInput()" />
+				</div>
 				<span asp-validation-for="Year" class="text-danger"></span>
 			</div>
-			<div>
+			<div class="input-group">
 				<label asp-for="Password"></label>
-				<input asp-for="Password" type="password" />
+				<input asp-for="Password" type="password" placeholder="Пароль" />
 				<span asp-validation-for="Password" class="text-danger"></span>
 			</div>
-			<div>
+			<div class="input-group">
 				<label asp-for="PasswordConfirm"></label>
-				<input asp-for="PasswordConfirm" type="password" />
+				<input asp-for="PasswordConfirm" type="password" placeholder="Повторите пароль" />
 				<span asp-validation-for="PasswordConfirm" class="text-danger"></span>
 			</div>
-			<div>
+			<div class="input-group">
 				<label asp-for="ChannelId"></label>
-				<input asp-for="ChannelId" />
+				<input asp-for="ChannelId" placeholder="ID канала (опционально)" />
 				<span asp-validation-for="ChannelId" class="text-danger"></span>
 			</div>
 			<button type="submit" class="yt-button">Зарегистрироваться</button>
@@ -47,12 +53,40 @@
 }
 
 <style>
+	body {
+		min-height: 100vh;
+		background: linear-gradient(135deg, #f5f6fa 0%, #e9ecef 100%);
+		background-attachment: fixed;
+	}
+
+	.glass-bg {
+		max-width: 420px;
+		margin: 60px auto 0 auto;
+		background: rgba(255, 255, 255, 0.28);
+		border-radius: 18px;
+		box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		border: 1px solid rgba(220, 220, 220, 0.28);
+		padding: 38px 32px 28px 32px;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.tab-panel {
+		display: flex;
+		justify-content: center;
+		gap: 20px;
+		margin-bottom: 24px;
+	}
+
 	.tab-btn {
 		background: none;
 		border: none;
 		font-size: 1.1rem;
 		font-weight: 600;
-		color: #e53935;
+		color: #444;
 		padding: 8px 18px;
 		border-radius: 8px 8px 0 0;
 		cursor: pointer;
@@ -60,39 +94,115 @@
 	}
 
 		.tab-btn.active {
-			background: #ffe0b2;
-			color: #b71c1c;
+			background: rgba(220,220,220,0.35);
+			color: #222;
 		}
 
+	.input-group {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 18px;
+	}
+
+	.input-group label {
+		margin-bottom: 6px;
+		color: #333;
+		font-size: 1rem;
+		font-weight: 500;
+	}
+
+	.input-group input[type="text"],
+	.input-group input[type="email"],
+	.input-group input[type="password"],
+	.input-group input[type="number"] {
+		padding: 12px 14px;
+		border-radius: 10px;
+		border: 1.5px solid rgba(200,200,200,0.35);
+		background: rgba(255,255,255,0.45);
+		font-size: 1rem;
+		outline: none;
+		transition: border 0.2s, box-shadow 0.2s;
+		box-shadow: 0 1px 4px rgba(31,38,135,0.04);
+	}
+
+	.input-group input:focus {
+		border: 1.5px solid #888;
+		box-shadow: 0 2px 8px rgba(100,100,100,0.08);
+	}
+
+	.year-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+
+	.year-row input[type="number"] {
+		width: 90px;
+		min-width: 70px;
+		margin-right: 8px;
+	}
+
+	.year-row input[type="range"] {
+		flex: 1;
+		accent-color: #888;
+		height: 3px;
+		margin-left: 8px;
+	}
+
 	.yt-button {
-		background-color: #e53935;
+		background: #222;
 		color: #fff;
 		border: none;
-		border-radius: 8px;
-		padding: 12px 20px;
-		font-size: 1rem;
+		border-radius: 10px;
+		padding: 13px 0;
+		font-size: 1.08rem;
 		font-weight: bold;
-		margin-top: 18px;
+		margin-top: 10px;
 		width: 100%;
 		cursor: pointer;
-		transition: background 0.2s;
+		transition: background 0.2s, box-shadow 0.2s;
+		box-shadow: 0 2px 8px rgba(31,38,135,0.08);
+		letter-spacing: 0.5px;
 	}
 
 		.yt-button:hover {
-			background-color: #b71c1c;
+			background: #444;
+			box-shadow: 0 4px 16px rgba(31,38,135,0.13);
 		}
 
 	.text-danger {
 		color: #dc3545;
 		font-size: 0.95em;
+		margin-bottom: 8px;
 	}
 
-	form > div {
-		margin-bottom: 14px;
+	::placeholder {
+		color: #bdbdbd;
+		opacity: 1;
 	}
 </style>
 
 <script>
+	const minYear = 1911;
+	const maxYear = new Date().getFullYear();
+	const yearInput = document.getElementById('yearInput');
+	const yearRange = document.getElementById('yearRange');
+	function syncYearInput() {
+		yearInput.value = yearRange.value;
+	}
+	function syncYearRange() {
+		let val = parseInt(yearInput.value);
+		if (isNaN(val) || val < minYear) val = minYear;
+		if (val > maxYear) val = maxYear;
+		yearInput.value = val;
+		yearRange.value = val;
+	}
+	window.onload = function() {
+		if (yearInput && yearRange) {
+			yearInput.value = 2000;
+			yearRange.value = 2000;
+		}
+	};
 	function showTab(tab) {
 		document.getElementById('registerForm').style.display = tab === 'register' ? '' : 'none';
 		document.getElementById('tabRegister').classList.toggle('active', tab === 'register');

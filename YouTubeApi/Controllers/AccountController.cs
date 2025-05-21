@@ -10,6 +10,7 @@ namespace YouTubeApi.Controllers
     public class AccountController : Controller
     {
         private readonly UserManager<User> _userManager;
+
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<AccountController> _logger;
 

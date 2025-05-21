@@ -1,47 +1,107 @@
 @{
     ViewData["Title"] = "Вход";
 }
-<h2>Вход</h2>
-<form asp-action="Login" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div>
-        <label for="loginEmail">Email</label>
-        <input id="loginEmail" name="email" type="email" required />
-    </div>
-    <div>
-        <label for="loginPassword">Пароль</label>
-        <input id="loginPassword" name="password" type="password" required />
-    </div>
-    <button type="submit" class="yt-button">Войти</button>
-</form>
+<div class="glass-bg">
+    <h2>Вход</h2>
+    <form asp-action="Login" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="input-group">
+            <label for="loginEmail">Email</label>
+            <input id="loginEmail" name="email" type="email" required placeholder="Введите email" />
+        </div>
+        <div class="input-group">
+            <label for="loginPassword">Пароль</label>
+            <input id="loginPassword" name="password" type="password" required placeholder="Введите пароль" />
+        </div>
+        <button type="submit" class="yt-button">Войти</button>
+    </form>
+    <p style="margin-top: 18px; text-align: center; font-size: 1rem;">
+        Нет аккаунта? <a href="/Account/Register" style="color: #222; text-decoration: underline;">Зарегистрироваться</a>
+    </p>
+</div>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
 <style>
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f6fa 0%, #e9ecef 100%);
+    background-attachment: fixed;
+}
+.glass-bg {
+    max-width: 370px;
+    margin: 60px auto 0 auto;
+    background: rgba(255, 255, 255, 0.28);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(220, 220, 220, 0.28);
+    padding: 38px 32px 28px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+.glass-bg h2 {
+    text-align: center;
+    margin-bottom: 28px;
+    color: #222;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+.input-group label {
+    margin-bottom: 6px;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 500;
+}
+.input-group input[type="text"],
+.input-group input[type="email"],
+.input-group input[type="password"] {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(200,200,200,0.35);
+    background: rgba(255,255,255,0.45);
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 4px rgba(31,38,135,0.04);
+}
+.input-group input:focus {
+    border: 1.5px solid #888;
+    box-shadow: 0 2px 8px rgba(100,100,100,0.08);
+}
 .yt-button {
-    background-color: #e53935;
+    background: #222;
     color: #fff;
     border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    font-size: 1rem;
+    border-radius: 10px;
+    padding: 13px 0;
+    font-size: 1.08rem;
     font-weight: bold;
-    margin-top: 18px;
+    margin-top: 10px;
     width: 100%;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(31,38,135,0.08);
+    letter-spacing: 0.5px;
 }
 .yt-button:hover {
-    background-color: #b71c1c;
+    background: #444;
+    box-shadow: 0 4px 16px rgba(31,38,135,0.13);
 }
 .text-danger {
     color: #dc3545;
     font-size: 0.95em;
+    margin-bottom: 8px;
 }
-form > div {
-    margin-bottom: 14px;
+::placeholder {
+    color: #bdbdbd;
+    opacity: 1;
 }
-</style>
-<p style="margin-top: 18px; text-align: center; font-size: 1rem;">
-    Нет аккаунта? <a href="/Account/Register" style="color: #e53935; text-decoration: underline;">Зарегистрироваться</a>
-</p> 
+</style> 

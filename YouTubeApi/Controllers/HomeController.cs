@@ -2,16 +2,20 @@
 using Microsoft.EntityFrameworkCore;
 using YouTubeApi.Data;
 using YouTubeApi.Models;
+using Microsoft.AspNetCore.Identity;
+using YouTubeApi.ViewModels;
 
 namespace YouTubeApi.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public HomeController(ApplicationDbContext context)
+        public HomeController(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(string? channelId)
@@ -27,16 +31,30 @@ namespace YouTubeApi.Controllers
                 .OrderByDescending(v => v.PublishedAt)
                 .ToListAsync();
 
-            return View(videos);
+            User? currentUser = null;
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                currentUser = await _userManager.GetUserAsync(User);
+            }
+
+            var model = new IndexViewModel
+            {
+                Videos = videos,
+                CurrentUser = currentUser
+            };
+
+            return View(model);
         }
         /// <summary>
         /// Auth + Index
         /// </summary>
         /// <returns></returns>
+        /*
         public IActionResult Index()
         {
             return RedirectToAction("Auth");
         }
+        */
 
         public IActionResult Auth()
         {

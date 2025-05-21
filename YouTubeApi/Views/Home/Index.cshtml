@@ -1,4 +1,4 @@
-﻿@model List<YouTubeApi.Models.VideoEntity>
+﻿@model YouTubeApi.ViewModels.IndexViewModel
 
 <header style="
     background: #fff;
@@ -11,7 +11,6 @@
     animation: fadeIn 0.8s ease-in-out;
     position: relative;
 ">
-
     <div style="display: flex; justify-content: center; align-items: center; gap: 12px; position: relative;">
         <h1 style="
             margin: 0;
@@ -20,94 +19,44 @@
             color: #e53935;
             display: flex;
             align-items: center;
-            gap: 12px;
-        ">
+            gap: 12px;">
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" style="height: 28px; vertical-align: middle;">
             ВидеоМенеджер
         </h1>
-
-@*         <button onclick="toggleAuthOptions()" style="
-            position: absolute;
-            right: 0;
-            padding: 8px 16px;
-            background-color: #e53935;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            transition: background-color 0.2s ease-in-out;
-        " onmouseover="this.style.backgroundColor='#d32f2f'" onmouseout="this.style.backgroundColor='#e53935'">
-            Регистрация
-        </button> *@
     </div>
-    <p style="
-        margin-top: 8px;
-        font-size: 1rem;
-        color: #555;
-        font-weight: 400;
-    ">
+    <p style="margin-top: 8px; font-size: 1rem; color: #555; font-weight: 400;">
         Получение информации о видео через YouTube API
     </p>
-
-    <div id="authOptions" style="display: none; margin-top: 20px;">
-        <button onclick="showForm('login')" class="auth-toggle">Login</button>
-        <button onclick="showForm('signup')" class="auth-toggle">Sign Up</button>
-    </div>
-
-@*     <div id="loginForm" style="display: none; margin-top: 20px;">
-        <form method="post" asp-controller="Account" asp-action="Login" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-            <input type="text" name="login" placeholder="Логин" required class="input-field" />
-            <input type="password" name="password" placeholder="Пароль" required class="input-field" />
-            <button type="submit" class="yt-button">Войти</button>
-        </form>
-    </div> *@
-
-@*     <div id="signupForm" style="display: none; margin-top: 20px;">
-        <form method="post" asp-controller="Account" asp-action="register" 
-            style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
-            <input type="text" name="login" placeholder="Логин" required class="input-field" />
-            <input type="password" name="password" placeholder="Пароль" required class="input-field" />
-            <input type="email" name="email" placeholder="Email" required class="input-field" />
-            <button type="submit" class="yt-button">Зарегистрироваться</button>
-        </form>
-    </div> *@
 </header>
 
-@* <style>
-    .auth-toggle {
-        margin: 0 5px;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 6px;
-        background-color: #e53935;
-        color: #fff;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background-color 0.2s ease-in-out;
-    }
-        .auth-toggle:hover {
-            background-color: #d32f2f;
-        }
-</style>
+@if (Model.CurrentUser == null)
+{
+    <div style="text-align:center; margin: 30px;">
+        <a href="/Account/Login" class="yt-button" style="max-width: 300px;">Войти</a>
+    </div>
+}
 
-<script>
-    function toggleAuthOptions() {
-        const options = document.getElementById("authOptions");
-        const login = document.getElementById("loginForm");
-        const signup = document.getElementById("signupForm");
-        options.style.display = options.style.display === "none" ? "block" : "none";
-        login.style.display = "none";
-        signup.style.display = "none";
-    }
+@if (Model.CurrentUser != null)
+{
+    <div class="main-container" style="margin: 30px auto; display: flex; flex-direction: column; align-items: center;">
+        <div style="font-size: 2.5rem; background: rgba(255,255,255,0.15); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; color: #e53935;">
+            <i class="fas fa-user"></i>
+        </div>
+        <div style="flex: 1; text-align: center;">
+            <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 4px; color: black;">@Model.CurrentUser.Email</div>
+            <div style="font-size: 1rem; opacity: 0.95; color: black;">YouTube Channel ID: <span style="font-weight: 500;">@Model.CurrentUser.ChannelId</span></div>
+            <div style="font-size: 1rem; opacity: 0.95; color: black;">Год рождения: <span style="font-weight: 500;">@Model.CurrentUser.Year</span></div>
+        </div>
+        <form asp-controller="Account" asp-action="Logout" method="post" style="margin-top: 18px; width: 100%;">
+            <button type="submit" class="yt-button" style="background-color: #e53935; color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-size: 1rem; font-weight: bold; width: 100%; cursor: pointer; transition: background 0.2s;">Log Out</button>
+        </form>
+    </div>
+}
 
-    function showForm(type) {
-        document.getElementById("loginForm").style.display = type === "login" ? "block" : "none";
-        document.getElementById("signupForm").style.display = type === "signup" ? "block" : "none";
-    }
-</script> *@
-
+<div id="authOptions" style="display: none; margin-top: 20px;">
+    <button onclick="showForm('login')" class="auth-toggle">Login</button>
+    <button onclick="showForm('signup')" class="auth-toggle">Sign Up</button>
+</div>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
@@ -159,25 +108,47 @@
 </h2>
 
 <div style="max-width: 600px; margin: 0 auto 30px; display: flex; flex-direction: column; gap: 16px;">
-
-    <form method="post" action="/api/youtube/load" style="display: flex; gap: 10px;">
-        <input type="text" name="channelId" placeholder="Введите Channel ID для загрузки информации о видео" required class="input-field" />
-        <button type="submit" class="yt-button">Загрузить</button>
-    </form>
-
-    <form method="get" asp-action="Index" style="display: flex; gap: 10px;">
-        <input type="text" name="channelId" placeholder="Введите Channel ID" value="@Context.Request.Query["channelId"]" class="input-field" />
-        <button type="submit" class="yt-button">Показать</button>
-    </form>
+    <div style="display: flex; gap: 10px;">
+        <input type="text" id="channelIdInput" name="channelId" placeholder="Введите Channel ID" required class="input-field" />
+        <button id="loadBtn" class="yt-button" type="button">Загрузить</button>
+        <button id="showBtn" class="yt-button" type="button">Показать</button>
+    </div>
 </div>
+<script>
+document.getElementById('loadBtn').addEventListener('click', async function() {
+    const channelId = document.getElementById('channelIdInput').value;
+    if (!channelId) {
+        alert('Введите Channel ID');
+        return;
+    }
+    const formData = new FormData();
+    formData.append('channelId', channelId);
+    const res = await fetch('/api/youtube/load', {
+        method: 'POST',
+        body: formData
+    });
+    if (res.ok) {
+        window.location.href = `/Home/Index?channelId=${encodeURIComponent(channelId)}`;
+    } else {
+        alert('Ошибка загрузки видео');
+    }
+});
+document.getElementById('showBtn').addEventListener('click', function() {
+    const channelId = document.getElementById('channelIdInput').value;
+    if (!channelId) {
+        alert('Введите Channel ID');
+        return;
+    }
+    window.location.href = `/Home/Index?channelId=${encodeURIComponent(channelId)}`;
+});
+</script>
 
-
-@if (Model != null && Model.Any())
+@if (Model.Videos != null && Model.Videos.Any())
 {
     
 
     <div class="video-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
-        @foreach (var video in Model)
+        @foreach (var video in Model.Videos)
         {
             <div class="video-card" style="width: 300px; border: 1px solid #e0e0e0; padding: 15px; border-radius: 12px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                 <img src="@video.Thumbnail" alt="thumbnail" style="width: 100%; border-radius: 6px;" />

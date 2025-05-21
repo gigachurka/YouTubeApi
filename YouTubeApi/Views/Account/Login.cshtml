@@ -1,0 +1,47 @@
+@{
+    ViewData["Title"] = "Вход";
+}
+<h2>Вход</h2>
+<form asp-action="Login" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div>
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" name="email" type="email" required />
+    </div>
+    <div>
+        <label for="loginPassword">Пароль</label>
+        <input id="loginPassword" name="password" type="password" required />
+    </div>
+    <button type="submit" class="yt-button">Войти</button>
+</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+<style>
+.yt-button {
+    background-color: #e53935;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 18px;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.yt-button:hover {
+    background-color: #b71c1c;
+}
+.text-danger {
+    color: #dc3545;
+    font-size: 0.95em;
+}
+form > div {
+    margin-bottom: 14px;
+}
+</style>
+<p style="margin-top: 18px; text-align: center; font-size: 1rem;">
+    Нет аккаунта? <a href="/Account/Register" style="color: #e53935; text-decoration: underline;">Зарегистрироваться</a>
+</p> 

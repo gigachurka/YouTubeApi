@@ -5,6 +5,10 @@
 }
 
 <div class="glass-bg">
+	@if (ViewBag.Message != null)
+	{
+		<div class="alert alert-info" style="margin-bottom:18px; color:#d32f2f; text-align:center;">@ViewBag.Message</div>
+	}
 	<div class="tab-panel">
 		<button id="tabRegister" type="button" class="tab-btn active" onclick="showTab('register')">Регистрация</button>
 		<button id="tabLogin" type="button" class="tab-btn" onclick="redirectToLogin()">Вход</button>

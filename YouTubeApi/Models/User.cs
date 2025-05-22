@@ -6,5 +6,6 @@ namespace YouTubeApi.Models
     {
         public int Year { get; set; }
         public string ChannelId { get; set; } = string.Empty;
+        public string? EmailConfirmationToken { get; set; }
     }
 }

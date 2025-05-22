@@ -34,6 +34,24 @@ namespace YouTubeApi.Controllers
                 ApiKey = "AIzaSyCAc0C3r_XNElzvji9CnFhpzcGm7rhMCkg",
                 ApplicationName = "MyYouTubeApp"
             });
+
+            // Получаем название канала
+            var channelRequest = youtubeService.Channels.List("snippet");
+            channelRequest.Id = channelId;
+            var channelResponse = await channelRequest.ExecuteAsync();
+            string? channelTitle = channelResponse.Items.FirstOrDefault()?.Snippet?.Title;
+
+            // Сохраняем название канала в User
+            if (!string.IsNullOrEmpty(channelTitle))
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.ChannelId == channelId);
+                if (user != null && user.ChannelTitle != channelTitle)
+                {
+                    user.ChannelTitle = channelTitle;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             var searchReaquest = youtubeService.Search.List("snippet");
             searchReaquest.ChannelId = channelId;
             Console.WriteLine($"channelId: {channelId}");

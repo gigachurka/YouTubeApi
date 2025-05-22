@@ -4,6 +4,9 @@ using YouTubeApi.Data;
 using YouTubeApi.Models;
 using Microsoft.AspNetCore.Identity;
 using YouTubeApi.ViewModels;
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using System.Linq;
 
 namespace YouTubeApi.Controllers
 {
@@ -90,6 +93,25 @@ namespace YouTubeApi.Controllers
             if (user == null)
                 return RedirectToAction("Index");
 
+            // Если ChannelTitle пустой, получаем его из YouTube API
+            if (string.IsNullOrEmpty(user.ChannelTitle) && !string.IsNullOrEmpty(user.ChannelId))
+            {
+                var youtubeService = new YouTubeService(new BaseClientService.Initializer
+                {
+                    ApiKey = "AIzaSyCAc0C3r_XNElzvji9CnFhpzcGm7rhMCkg",
+                    ApplicationName = "MyYouTubeApp"
+                });
+                var channelRequest = youtubeService.Channels.List("snippet");
+                channelRequest.Id = user.ChannelId;
+                var channelResponse = await channelRequest.ExecuteAsync();
+                string? channelTitle = channelResponse.Items.FirstOrDefault()?.Snippet?.Title;
+                if (!string.IsNullOrEmpty(channelTitle))
+                {
+                    user.ChannelTitle = channelTitle;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             var videos = await _context.Videos
                 .Where(v => v.ChannelId == user.ChannelId)
                 .OrderByDescending(v => v.PublishedAt)
@@ -98,7 +120,11 @@ namespace YouTubeApi.Controllers
             var model = new YouTubeApi.ViewModels.ProfileViewModel
             {
                 User = user,
-                Videos = videos
+                Videos = videos,
+                TotalViews = videos.Sum(v => v.ViewCount),
+                TotalLikes = videos.Sum(v => v.LikeCount),
+                TotalComments = videos.Sum(v => v.CommentCount),
+                ChannelTitle = user.ChannelTitle ?? user.ChannelId ?? "Неизвестный канал"
             };
             return View(model);
         }

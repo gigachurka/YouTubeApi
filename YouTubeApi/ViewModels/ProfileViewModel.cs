@@ -7,5 +7,9 @@ namespace YouTubeApi.ViewModels
     {
         public User User { get; set; }
         public List<VideoEntity> Videos { get; set; }
+        public long TotalViews { get; set; }
+        public long TotalLikes { get; set; }
+        public long TotalComments { get; set; }
+        public string ChannelTitle { get; set; }
     }
 } 

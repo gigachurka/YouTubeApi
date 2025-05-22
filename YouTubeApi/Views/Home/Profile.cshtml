@@ -20,8 +20,30 @@ else
             <a href="/Home/Index" class="yt-button">На главную</a>
         </div>
     </div>
+
     @if (Model.Videos != null && Model.Videos.Any())
     {
+        <div class="channel-stats">
+            <h2 class="channel-title">@Model.ChannelTitle</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-eye"></i>
+                    <div class="stat-value">@Model.TotalViews.ToString("N0")</div>
+                    <div class="stat-label">Просмотры</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-heart"></i>
+                    <div class="stat-value">@Model.TotalLikes.ToString("N0")</div>
+                    <div class="stat-label">Лайки</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-comments"></i>
+                    <div class="stat-value">@Model.TotalComments.ToString("N0")</div>
+                    <div class="stat-label">Комментарии</div>
+                </div>
+            </div>
+        </div>
+
         <div style="margin-top: 40px; max-width: 900px; margin-left: auto; margin-right: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
             <canvas id="viewsChart" width="800" height="400"></canvas>
         </div>
@@ -323,6 +345,84 @@ else
             .dark-theme .icon-btn:hover {
                 color: #ff1744;
             }
+
+    .channel-stats {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 35px rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(8px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .channel-title {
+        text-align: center;
+        color: #d32f2f;
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+        font-weight: 600;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-card i {
+        font-size: 2rem;
+        color: #d32f2f;
+        margin-bottom: 10px;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #222;
+        margin: 10px 0;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        color: #666;
+    }
+
+    .dark-theme .channel-stats {
+        background: rgba(24, 24, 24, 0.85);
+        border: 1px solid #d32f2f;
+    }
+
+    .dark-theme .stat-card {
+        background: rgba(40, 40, 40, 0.9);
+    }
+
+    .dark-theme .stat-value {
+        color: #fff;
+    }
+
+    .dark-theme .stat-label {
+        color: #aaa;
+    }
+
+    .dark-theme .channel-title {
+        color: #ff1744;
+    }
 </style>
 
 <script>

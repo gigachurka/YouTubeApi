@@ -8,6 +8,7 @@ using YouTubeApi.Services;
 using System;
 using MailKit.Net.Smtp;
 using MimeKit;
+using System.Linq;
 
 namespace YouTubeApi.Controllers
 {
@@ -43,24 +44,44 @@ namespace YouTubeApi.Controllers
             if (ModelState.IsValid)
             {
                 _logger.LogInformation("Модель валидна, формируем токен и отправляем письмо");
-                var token = Guid.NewGuid().ToString();//генерю токен
+                var token = Guid.NewGuid().ToString();
+                var expiry = DateTime.UtcNow.AddHours(24); // 24 часа на подтверждение
 
-                TempData[$"reg_email_{token}"] = model.Email;
-                TempData[$"reg_username_{token}"] = model.Email;
-                TempData[$"reg_year_{token}"] = model.Year.ToString();
-                TempData[$"reg_channel_{token}"] = model.ChannelId;
-                TempData[$"reg_password_{token}"] = model.Password;
+                // Проверяем, не существует ли уже пользователь с таким email
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
+                {
+                    ViewBag.Message = "Пользователь с таким email уже зарегистрирован.";
+                    return View("Register");
+                }
 
-                var confirmationLink = Url.Action("ConfirmEmail", "Account", new 
-                { 
-                    token = token 
-                }, 
+                // Создаём временного пользователя
+                var user = new User
+                {
+                    Email = model.Email,
+                    UserName = model.Email,
+                    Year = model.Year,
+                    ChannelId = model.ChannelId ?? string.Empty,
+                    EmailConfirmed = false,
+                    EmailConfirmationToken = token,
+                    RegistrationTokenExpiry = expiry,
+                    RegistrationEmail = model.Email,
+                    RegistrationUsername = model.Email,
+                    RegistrationYear = model.Year,
+                    RegistrationChannelId = model.ChannelId,
+                    RegistrationPassword = model.Password
+                };
+                await _userManager.CreateAsync(user, model.Password); // Сохраняем временного пользователя
+
+                var confirmationLink = Url.Action("ConfirmEmail", "Account", new
+                {
+                    token = token
+                },
                 protocol: HttpContext.Request.Scheme);
-                var messageBody = $"Пожалуйста, подтвердите ваш email, перейдя по ссылке: <a href='{confirmationLink}'>Подтвердить Email</a> \nНадёжно, как Кужеленов Кирилл.";
+                var messageBody = $"Пожалуйста, подтвердите ваш email, перейдя по ссылке: <a href='{confirmationLink}'>Подтвердить Email</a> <br>Надёжно, как Кужеленов Кирилл.";
 
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("YouTubeApi", "kuzhelinovk@gmail.com"));
-
                 message.To.Add(new MailboxAddress("", model.Email));
                 message.Subject = "Подтверждение email";
                 message.Body = new TextPart("html") { Text = messageBody };
@@ -120,50 +141,32 @@ namespace YouTubeApi.Controllers
                 ViewBag.Message = "Некорректная ссылка подтверждения.";
                 return View();
             }
-            var email = TempData[$"reg_email_{token}"] as string;
-            var username = TempData[$"reg_username_{token}"] as string;
-            var yearStr = TempData[$"reg_year_{token}"] as string;
-            var channelId = TempData[$"reg_channel_{token}"] as string;
-            var password = TempData[$"reg_password_{token}"] as string;
-
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(yearStr) || string.IsNullOrEmpty(password))
+            // Ищем пользователя по токену
+            var user = _userManager.Users.FirstOrDefault(u => u.EmailConfirmationToken == token);
+            if (user == null || user.RegistrationTokenExpiry == null || user.RegistrationTokenExpiry < DateTime.UtcNow)
             {
                 ViewBag.Message = "Данные для подтверждения не найдены или срок действия истек. Зарегистрируйтесь заново.";
                 return View();
             }
-
-            if (!int.TryParse(yearStr, out int year))
+            // Проверяем, не подтверждён ли уже email
+            if (user.EmailConfirmed)
             {
-                ViewBag.Message = "Ошибка данных года рождения.";
+                ViewBag.Message = "Email уже подтверждён.";
                 return View();
             }
-
-            var existingUser = await _userManager.FindByEmailAsync(email);
-            if (existingUser != null)
-            {
-                ViewBag.Message = "Пользователь с таким email уже зарегистрирован.";
-                return View();
-            }
-
-            var user = new User
-            {
-                Email = email,
-                UserName = username,
-                Year = year,
-                ChannelId = channelId ?? string.Empty,
-                EmailConfirmed = true
-            };
-            var result = await _userManager.CreateAsync(user, password);
-            if (result.Succeeded)
-            {
-                await _signInManager.SignInAsync(user, false);
-                await _videoLoader.LoadVideosByChannelIdAsync(user.ChannelId);
-                ViewBag.Message = "Email успешно подтвержден и регистрация завершена!";
-            }
-            else
-            {
-                ViewBag.Message = "Ошибка при создании пользователя: " + string.Join(", ", result.Errors.Select(e => e.Description));
-            }
+            // Подтверждаем email и очищаем временные поля
+            user.EmailConfirmed = true;
+            user.EmailConfirmationToken = null;
+            user.RegistrationTokenExpiry = null;
+            user.RegistrationEmail = null;
+            user.RegistrationUsername = null;
+            user.RegistrationYear = null;
+            user.RegistrationChannelId = null;
+            user.RegistrationPassword = null;
+            await _userManager.UpdateAsync(user);
+            await _signInManager.SignInAsync(user, false);
+            await _videoLoader.LoadVideosByChannelIdAsync(user.ChannelId);
+            ViewBag.Message = "Email успешно подтвержден и регистрация завершена!";
             return View();
         }
     }

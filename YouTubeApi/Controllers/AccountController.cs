@@ -43,23 +43,24 @@ namespace YouTubeApi.Controllers
             if (ModelState.IsValid)
             {
                 _logger.LogInformation("Модель валидна, формируем токен и отправляем письмо");
-                // Генерируем токен подтверждения
-                var token = Guid.NewGuid().ToString();
+                var token = Guid.NewGuid().ToString();//генерю токен
 
-                // Сохраняем данные пользователя во временное хранилище (TempData)
                 TempData[$"reg_email_{token}"] = model.Email;
                 TempData[$"reg_username_{token}"] = model.Email;
                 TempData[$"reg_year_{token}"] = model.Year.ToString();
                 TempData[$"reg_channel_{token}"] = model.ChannelId;
                 TempData[$"reg_password_{token}"] = model.Password;
 
-                // Формируем ссылку для подтверждения
-                var confirmationLink = Url.Action("ConfirmEmail", "Account", new { token = token }, protocol: HttpContext.Request.Scheme);
-                var messageBody = $"Пожалуйста, подтвердите ваш email, перейдя по ссылке: <a href='{confirmationLink}'>Подтвердить Email</a>";
+                var confirmationLink = Url.Action("ConfirmEmail", "Account", new 
+                { 
+                    token = token 
+                }, 
+                protocol: HttpContext.Request.Scheme);
+                var messageBody = $"Пожалуйста, подтвердите ваш email, перейдя по ссылке: <a href='{confirmationLink}'>Подтвердить Email</a> \nНадёжно, как Кужеленов Кирилл.";
 
-                // Отправка письма через MailKit
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("YouTubeApi", "kuzhelinovk@gmail.com"));
+
                 message.To.Add(new MailboxAddress("", model.Email));
                 message.Subject = "Подтверждение email";
                 message.Body = new TextPart("html") { Text = messageBody };
@@ -119,7 +120,6 @@ namespace YouTubeApi.Controllers
                 ViewBag.Message = "Некорректная ссылка подтверждения.";
                 return View();
             }
-            // Извлекаем данные из TempData
             var email = TempData[$"reg_email_{token}"] as string;
             var username = TempData[$"reg_username_{token}"] as string;
             var yearStr = TempData[$"reg_year_{token}"] as string;
@@ -138,7 +138,6 @@ namespace YouTubeApi.Controllers
                 return View();
             }
 
-            // Проверяем, не существует ли уже пользователь с таким email
             var existingUser = await _userManager.FindByEmailAsync(email);
             if (existingUser != null)
             {

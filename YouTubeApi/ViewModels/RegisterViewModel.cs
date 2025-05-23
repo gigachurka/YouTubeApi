@@ -5,7 +5,9 @@ namespace YouTubeApi.ViewModels
     public class RegisterViewModel
     {
         [Required]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Неверный формат email")]
+        [RegularExpression(@"^[^!#$%^&*()=+{}\[\]|\\:;""'<>,?]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+            ErrorMessage = "Email содержит запрещённые символы")]
         [Display(Name = "Email")]
         public string Email { get; set; }
 

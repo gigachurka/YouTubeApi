@@ -47,6 +47,7 @@ namespace YouTubeApi.Controllers
                 var token = Guid.NewGuid().ToString();
                 var expiry = DateTime.UtcNow.AddHours(24); // 24 часа на подтверждение
 
+
                 var existingUser = await _userManager.FindByEmailAsync(model.Email);
                 if (existingUser != null)
                 {

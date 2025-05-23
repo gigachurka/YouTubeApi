@@ -31,7 +31,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Регистрируем сервис загрузки видео
 builder.Services.AddScoped<YouTubeVideoLoaderService>();
 
 var app = builder.Build();

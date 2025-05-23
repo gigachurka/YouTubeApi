@@ -93,29 +93,44 @@ namespace YouTubeApi.Controllers
             if (user == null)
                 return RedirectToAction("Index");
 
-            // Если ChannelTitle пустой, получаем его из YouTube API
-            if (string.IsNullOrEmpty(user.ChannelTitle) && !string.IsNullOrEmpty(user.ChannelId))
+            long subscriberCount = 0;
             {
-                var youtubeService = new YouTubeService(new BaseClientService.Initializer
+                var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new Google.Apis.Services.BaseClientService.Initializer
                 {
                     ApiKey = "AIzaSyCAc0C3r_XNElzvji9CnFhpzcGm7rhMCkg",
                     ApplicationName = "MyYouTubeApp"
                 });
-                var channelRequest = youtubeService.Channels.List("snippet");
+                var channelRequest = youtubeService.Channels.List("snippet,statistics");
                 channelRequest.Id = user.ChannelId;
                 var channelResponse = await channelRequest.ExecuteAsync();
-                string? channelTitle = channelResponse.Items.FirstOrDefault()?.Snippet?.Title;
+                var channel = channelResponse.Items.FirstOrDefault();
+                string? channelTitle = channel?.Snippet?.Title;
                 if (!string.IsNullOrEmpty(channelTitle))
                 {
                     user.ChannelTitle = channelTitle;
-                    await _context.SaveChangesAsync();
                 }
+                if (channel?.Statistics?.SubscriberCount != null)
+                {
+                    subscriberCount = (long)channel.Statistics.SubscriberCount.Value;
+                    user.SubscriberCount = subscriberCount;
+                }
+                await _context.SaveChangesAsync();
             }
 
             var videos = await _context.Videos
                 .Where(v => v.ChannelId == user.ChannelId)
                 .OrderByDescending(v => v.PublishedAt)
                 .ToListAsync();
+            var avgViews = videos.Any() ? videos.Average(v => v.ViewCount) : 0;
+            var avgLikes = videos.Any() ? videos.Average(v => v.LikeCount) : 0;
+            var engagement = videos.Sum(v => v.ViewCount) > 0 ? ((double)(videos.Sum(v => v.LikeCount) + videos.Sum(v => v.CommentCount)) / videos.Sum(v => v.ViewCount)) * 100 : 0;
+            var videoCount = videos.Count;
+            var createdAt = videos.OrderBy(v => v.PublishedAt).FirstOrDefault()?.PublishedAt;
+            string badge = "";
+            if (videos.Sum(v => v.ViewCount) > 1000000) badge = "Миллионник";
+            else if (engagement > 10) badge = "Вовлечённый канал";
+            else if (videoCount > 100) badge = "Ветеран YouTube";
+            else badge = "Новичок";
 
             var model = new YouTubeApi.ViewModels.ProfileViewModel
             {
@@ -124,7 +139,14 @@ namespace YouTubeApi.Controllers
                 TotalViews = videos.Sum(v => v.ViewCount),
                 TotalLikes = videos.Sum(v => v.LikeCount),
                 TotalComments = videos.Sum(v => v.CommentCount),
-                ChannelTitle = user.ChannelTitle ?? user.ChannelId ?? "Неизвестный канал"
+                ChannelTitle = user.ChannelTitle ?? user.ChannelId ?? "Неизвестный канал",
+                AvgViews = avgViews,
+                AvgLikes = avgLikes,
+                EngagementRate = engagement,
+                VideoCount = videoCount,
+                ChannelCreatedAt = createdAt,
+                Badge = badge,
+                SubscriberCount = user.SubscriberCount
             };
             return View(model);
         }

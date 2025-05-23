@@ -47,7 +47,6 @@ namespace YouTubeApi.Controllers
                 var token = Guid.NewGuid().ToString();
                 var expiry = DateTime.UtcNow.AddHours(24); // 24 часа на подтверждение
 
-                // Проверяем, не существует ли уже пользователь с таким email
                 var existingUser = await _userManager.FindByEmailAsync(model.Email);
                 if (existingUser != null)
                 {
@@ -55,7 +54,6 @@ namespace YouTubeApi.Controllers
                     return View("Register");
                 }
 
-                // Создаём временного пользователя
                 var user = new User
                 {
                     Email = model.Email,
@@ -71,7 +69,7 @@ namespace YouTubeApi.Controllers
                     RegistrationChannelId = model.ChannelId,
                     RegistrationPassword = model.Password
                 };
-                await _userManager.CreateAsync(user, model.Password); // Сохраняем временного пользователя
+                await _userManager.CreateAsync(user, model.Password);
 
                 var confirmationLink = Url.Action("ConfirmEmail", "Account", new
                 {
@@ -141,20 +139,17 @@ namespace YouTubeApi.Controllers
                 ViewBag.Message = "Некорректная ссылка подтверждения.";
                 return View();
             }
-            // Ищем пользователя по токену
             var user = _userManager.Users.FirstOrDefault(u => u.EmailConfirmationToken == token);
             if (user == null || user.RegistrationTokenExpiry == null || user.RegistrationTokenExpiry < DateTime.UtcNow)
             {
                 ViewBag.Message = "Данные для подтверждения не найдены или срок действия истек. Зарегистрируйтесь заново.";
                 return View();
             }
-            // Проверяем, не подтверждён ли уже email
             if (user.EmailConfirmed)
             {
                 ViewBag.Message = "Email уже подтверждён.";
                 return View();
             }
-            // Подтверждаем email и очищаем временные поля
             user.EmailConfirmed = true;
             user.EmailConfirmationToken = null;
             user.RegistrationTokenExpiry = null;

@@ -14,5 +14,6 @@ namespace YouTubeApi.Models
         public string? RegistrationChannelId { get; set; }
         public string? RegistrationPassword { get; set; }
         public string? ChannelTitle { get; set; }
+        public long SubscriberCount { get; set; }
     }
 }

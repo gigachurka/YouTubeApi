@@ -121,8 +121,8 @@ namespace YouTubeApi.Controllers
                 .Where(v => v.ChannelId == user.ChannelId)
                 .OrderByDescending(v => v.PublishedAt)
                 .ToListAsync();
-            var avgViews = videos.Any() ? videos.Average(v => v.ViewCount) : 0;
-            var avgLikes = videos.Any() ? videos.Average(v => v.LikeCount) : 0;
+            var avgViews = videos.Count > 0 ? videos.Average(v => v.ViewCount) : 0;
+            var avgLikes = videos.Count > 0 ? videos.Average(v => v.LikeCount) : 0;
             var engagement = videos.Sum(v => v.ViewCount) > 0 ? ((double)(videos.Sum(v => v.LikeCount) + videos.Sum(v => v.CommentCount)) / videos.Sum(v => v.ViewCount)) * 100 : 0;
             var videoCount = videos.Count;
             var createdAt = videos.OrderBy(v => v.PublishedAt).FirstOrDefault()?.PublishedAt;
@@ -158,30 +158,46 @@ namespace YouTubeApi.Controllers
                 return RedirectToAction("Index");
             return RedirectToAction("Profile", new { id = user.Id });
         }
+
+        // Новый экшен для подробного просмотра канала и его видео
+        public async Task<IActionResult> ChannelDetails(string channelId)
+        {
+            if (string.IsNullOrEmpty(channelId))
+                return RedirectToAction("Search");
+
+            var youtubeService = new YouTubeService(new BaseClientService.Initializer
+            {
+                ApiKey = "AIzaSyCAc0C3r_XNElzvji9CnFhpzcGm7rhMCkg",
+                ApplicationName = "MyYouTubeApp"
+            });
+            var channelRequest = youtubeService.Channels.List("snippet,statistics");
+            channelRequest.Id = channelId;
+            var channelResponse = await channelRequest.ExecuteAsync();
+            var channel = channelResponse.Items.FirstOrDefault();
+
+            var videos = await _context.Videos
+                .Where(v => v.ChannelId == channelId)
+                .OrderByDescending(v => v.PublishedAt)
+                .ToListAsync();
+
+            var model = new YouTubeApi.ViewModels.ProfileViewModel
+            {
+                ChannelTitle = channel?.Snippet?.Title ?? channelId,
+                SubscriberCount = channel?.Statistics?.SubscriberCount != null ? (long)channel.Statistics.SubscriberCount : 0,
+                Videos = videos,
+                ChannelCreatedAt = channel?.Snippet?.PublishedAt,
+                VideoCount = videos.Count
+            };
+            return View(model);
+        }
+
+        public IActionResult About()
+        {
+            return View();
+        }
+        public IActionResult Privacy()
+        {
+            return View();
+        }
     }
 }
-
-        //public async Task<IActionResult> Analytics(string? channelId)
-        //{
-        //    IQueryable<VideoEntity> query = _context.Videos;
-
-        //    if (!string.IsNullOrEmpty(channelId))
-        //    {
-        //        query = query.Where(v => v.ChannelId == channelId);
-        //    }
-
-        //    var videos = await query
-        //        .OrderByDescending(v => v.PublishedAt)
-        //        .ToListAsync();
-
-        //    var analyticsData = new
-        //    {
-        //        TotalViews = videos.Sum(v => v.ViewCount),
-        //        TotalLikes = videos.Sum(v => v.LikeCount),
-        //        TotalComments = videos.Sum(v => v.CommentCount),
-        //        VideoCount = videos.Count,
-        //        Videos = videos
-        //    };
-
-        //    return View(analyticsData);
-        //}

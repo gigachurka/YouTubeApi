@@ -6,11 +6,13 @@
     <div style="font-size: 1.5rem; font-weight: bold;">
         Видео Менеджер
     </div>
+
     <div style="display: flex; gap: 20px;">
         <a href="@Url.Action("Index", "Home")" style="color: #fff; text-decoration: none;">Главная</a>
         @* <a href="@Url.Action("Search", "Home")" style="color: #fff; text-decoration: none;">Поиск</a> *@
     </div>
 </nav>
+
 <!-- Шрифты и стили -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -178,6 +180,39 @@ td img {
 <!-- Контент -->
 <header>
     <h1>Результаты поиска</h1>
+    @{
+        var uniqueChannels = Model.GroupBy(v => v.ChannelId)
+        .Select(g => new { ChannelId = g.Key, Thumbnail = g.First().Thumbnail })
+        .ToList();
+    }
+    @if (uniqueChannels.Any())
+    {
+        <div class="table-container" style="margin-bottom: 30px;">
+            <h2>Найденные каналы</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Канал</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ch in uniqueChannels)
+                    {
+                        <tr>
+                            <td>
+                                <img src="@ch.Thumbnail" alt="thumbnail" style="width: 60px; border-radius: 8px; margin-right: 10px;" />
+                                <span style="font-weight: 600;">@ch.ChannelId</span><br />
+                            </td>
+                            <td>
+                                <a href="@Url.Action("ChannelDetails", "Home", new { channelId = ch.ChannelId })" class="yt-button" style="padding: 6px 18px; background: #e53935; color: #fff; border-radius: 6px; text-decoration: none;">Смотреть видео</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
     <p>Здесь отображаются загруженные видео с YouTube</p>
 </header>
 

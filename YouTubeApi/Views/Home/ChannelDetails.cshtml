@@ -1,0 +1,160 @@
+@model YouTubeApi.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Видео канала";
+}
+
+<style>
+.channel-card {
+    max-width: 700px;
+    margin: 30px auto 40px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(211,47,47,0.08);
+    padding: 32px 32px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+.channel-avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(211,47,47,0.12);
+    margin-bottom: 18px;
+    background: #eee;
+}
+.channel-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #d32f2f;
+    margin-bottom: 8px;
+    text-align: center;
+}
+.channel-meta {
+    color: #555;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    text-align: center;
+}
+.channel-meta span {
+    margin-right: 18px;
+}
+.back-btn {
+    display: inline-block;
+    margin: 0 auto 18px 0;
+    padding: 8px 22px;
+    background: #e53935;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(211,47,47,0.08);
+    transition: background 0.2s;
+}
+.back-btn:hover {
+    background: #b71c1c;
+    color: #fff;
+}
+.video-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 20px;
+}
+.video-card {
+    width: 320px;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: box-shadow 0.2s;
+}
+.video-card:hover {
+    box-shadow: 0 6px 18px rgba(211,47,47,0.10);
+    border-color: #d32f2f;
+}
+.video-card img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+.video-card h3 {
+    font-size: 1.1rem;
+    margin: 8px 0 4px 0;
+    font-weight: 600;
+}
+.video-card a {
+    color: #d32f2f;
+    text-decoration: none;
+}
+.video-card a:hover {
+    text-decoration: underline;
+}
+.video-card .video-meta {
+    font-size: 0.97rem;
+    color: #888;
+    margin-bottom: 6px;
+}
+.video-card .video-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 0.98rem;
+    color: #555;
+    margin-top: 8px;
+}
+@@media (max-width: 900px) {
+    .video-container { gap: 14px; }
+    .video-card { width: 98vw; max-width: 340px; }
+    .channel-card { padding: 18px 6vw; }
+}
+</style>
+
+<a href="@Url.Action("Search", "Home")" class="back-btn">← Вернуться к поиску</a>
+
+<div class="channel-card">
+    <img src="@(Model.Videos.FirstOrDefault()?.Thumbnail ?? "https://www.gravatar.com/avatar/?d=mp")" class="channel-avatar" alt="Аватар канала" />
+    <div class="channel-title">@Model.ChannelTitle</div>
+    <div class="channel-meta">
+        <span>Подписчиков: <b>@Model.SubscriberCount</b></span>
+        <span>Видео: <b>@Model.VideoCount</b></span>
+    </div>
+    <div class="channel-meta" style="font-size:0.98rem; color:#888;">
+        Дата создания: @(Model.ChannelCreatedAt?.ToString("dd MMM yyyy") ?? "-")
+    </div>
+</div>
+
+@if (Model.Videos != null && Model.Videos.Any())
+{
+    <div class="video-container">
+        @foreach (var video in Model.Videos)
+        {
+            <div class="video-card">
+                <img src="@video.Thumbnail" alt="thumbnail" />
+                <h3>
+                    <a href="@video.Link" target="_blank">
+                        @video.Title
+                    </a>
+                </h3>
+                <div class="video-meta">Опубликовано: @(video.PublishedAt?.ToString("dd MMM yyyy, HH:mm") ?? "Неизвестно")</div>
+                <div class="video-stats">
+                    <span>👁️ @video.ViewCount</span>
+                    <span>👍 @video.LikeCount</span>
+                    <span>💬 @video.CommentCount</span>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p style="text-align: center; margin-top: 40px; color: #666;">Видео не найдены.</p>
+} 

@@ -13,3 +13,5 @@
         public int CommentCount { get; set; }
     }
 }
+//ChannelRequest.cs
+//VideoDetails.cs

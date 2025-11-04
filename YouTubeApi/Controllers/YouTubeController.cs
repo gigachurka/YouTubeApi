@@ -31,7 +31,7 @@ namespace YouTubeApi.Controllers
         {
             var youtubeService = new YouTubeService(new BaseClientService.Initializer
             {
-                ApiKey = "AIzaSyCAc0C3r_XNElzvji9CnFhpzcGm7rhMCkg",
+                ApiKey = "___///___///___///___",
                 ApplicationName = "MyYouTubeApp"
             });
 

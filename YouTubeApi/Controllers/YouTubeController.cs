@@ -10,7 +10,6 @@ namespace YouTubeApi.Controllers
 {
     /// <summary>
     /// UC2tsySbe9TNrI-xh2lximHA //A4
-    /// UCHgn5EP5TuCMH7TTOVsMfjQ //my kuzhelinovk@gmail.com
     /// UCfuzrGBCVquxNQAAJ1ib7qg //sigma
     /// </summary>
     [Route("api/[controller]")]
